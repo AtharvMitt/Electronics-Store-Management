@@ -24,10 +24,10 @@ brew tap mongodb/brew
 brew install mongodb-community@8.0
 ```
 
-If Homebrew reports that `mongodb/brew` is untrusted, explicitly trust MongoDB's official formula and repeat the installation:
+If Homebrew reports that `mongodb/brew` is untrusted, explicitly trust MongoDB's official tap (the server and its database-tools dependency) and repeat the installation:
 
 ```bash
-brew trust --formula mongodb/brew/mongodb-community@8.0
+brew trust mongodb/brew
 brew install mongodb-community@8.0
 ```
 
