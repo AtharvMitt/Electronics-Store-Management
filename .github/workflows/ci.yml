@@ -48,10 +48,15 @@ jobs:
       - run: npm ci
       - name: Start isolated MongoDB replica set
         run: |
+          uname -r
           docker run --detach --name techzone-mongo \
             --publish 127.0.0.1:27018:27018 \
-            mongo:8.0 --replSet techzone-dev --bind_ip_all --port 27018
+            mongo:8.3.13 --replSet techzone-dev --bind_ip_all --port 27018
           for attempt in {1..40}; do
+            if [ "$(docker inspect --format '{{.State.Running}}' techzone-mongo)" != true ]; then
+              docker logs techzone-mongo
+              exit 1
+            fi
             if docker exec techzone-mongo mongosh --port 27018 --quiet --eval 'db.adminCommand({ping: 1})'; then
               break
             fi

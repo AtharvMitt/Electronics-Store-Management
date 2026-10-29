@@ -15,7 +15,9 @@ Two checks run independently on Ubuntu 24.04 with the Node version from `.nvmrc`
 | Lint and frontend build | `npm ci`, `npm run lint`, `npm run build` |
 | API and database tests | `npm ci`, isolated MongoDB replica set, `npm test` |
 
-CI uses an ephemeral `mongo:8.0` container on the runner, mapped only to loopback. The same replica-set topology is used locally with the installed AUR binaries; Docker is needed by the GitHub runner, not by local contributors. No production database or repository secrets are required. Database logs are shown on failures and the container is cleaned up after each job. Every database test must run; no passing placeholder or skip replaces an unavailable database.
+CI uses an ephemeral, version-pinned `mongo:8.3.13` container on the runner, mapped only to loopback. The same replica-set topology is used locally with the installed AUR binaries; Docker is needed by the GitHub runner, not by local contributors. No production database or repository secrets are required. Database logs are shown on failures and the container is cleaned up after each job. Every database test must run; no passing placeholder or skip replaces an unavailable database.
+
+The initial `mongo:8.0` run failed before tests because the server's startup guard rejected the runner kernel (MongoDB SERVER-121912). The workflow records the kernel, fails promptly on container exit, and uses the newer 8.3 patch line corresponding to the local development version. See [MongoDB 8.3 release notes](https://www.mongodb.com/docs/manual/release-notes/8.3/) and the [official image manifest](https://github.com/docker-library/official-images/blob/master/library/mongo).
 
 The workflow has read-only repository permissions, bounded runtime, and cancels obsolete runs on the same ref. Tests added by #24 and later feature PRs run through the same command.
 
