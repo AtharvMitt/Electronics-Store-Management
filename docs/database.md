@@ -56,15 +56,28 @@ Future schema changes must introduce a new reviewed migration/version and data-c
 
 ## Development seed data
 
-Choose a development-only password at runtime. In Bash, the following keeps it out of shell history and command arguments:
+Choose a development-only password at runtime. In macOS zsh or Linux/macOS Bash, the following keeps it out of shell history and command arguments:
 
 ```bash
-read -rsp 'Development seed password (12–128 characters): ' SEED_PASSWORD
-echo
+printf 'Development seed password (12–128 characters): '
+read -rs SEED_PASSWORD
+printf '\n'
 export SEED_PASSWORD
 npm run db:seed
 unset SEED_PASSWORD
 ```
+
+In Windows PowerShell:
+
+```powershell
+$seedSecret = Read-Host 'Development seed password (12–128 characters)' -AsSecureString
+$env:SEED_PASSWORD = [System.Net.NetworkCredential]::new('', $seedSecret).Password
+npm run db:seed
+Remove-Item Env:\SEED_PASSWORD
+Remove-Variable seedSecret
+```
+
+Use `npm.cmd` if PowerShell blocks `npm.ps1`. The password is temporarily passed in the process environment for hashing, never stored in a tracked file. Clear it after seeding, including if the command fails.
 
 Six synthetic accounts are defined at `admin`, `inventory`, `purchase`, `sales`, `manager`, and `inactive` **@techzone.example.test**. They cover all five roles plus an inactive account. Passwords use a salted scrypt hash; no default password is committed or printed. User JSON excludes the hash, and normal queries do not select it. The authentication owner can use `verifyPassword` from `modules/shared/passwords.js`; account status and permissions still need enforcement in #6/#7.
 

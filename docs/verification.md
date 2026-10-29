@@ -23,3 +23,9 @@ Full suite: 16 passing tests (4 foundation, 12 schema), 0 skipped, against the l
 Coverage includes replayable schema setup, unique indexes, direct database rejection of invalid stock/prices/statuses, invalid references on create/update, seeded role/account/stock boundaries, salted password verification, seed replay preserving existing data, append-only history, protected historical references, and rollback after a forced multi-document transaction failure. The first schema run identified Mongoose automatic collection creation racing setup; disabling automatic creation resolved it.
 
 Login/UI, concurrent stock business operations, purchase/sale retry semantics, and end-to-end permission behavior are not implemented or claimed by these checks.
+
+Cross-platform follow-up: replaced Unix-only MongoDB `--fork` with Node-managed detached startup and project PID tracking, removed shell-dependent test globs, and added native Windows PowerShell/macOS/Linux cloning, PATH, configuration, validation, shutdown and troubleshooting instructions to README. Native CI checks are added under #12; only actually executed results are recorded.
+
+## Issue #12 — 2026-10-29
+
+The Linux CI workflow passed on commit `d0afd3e`: https://github.com/AtharvMitt/Electronics-Store-Management/actions/runs/40869627836 (PR run) and https://github.com/AtharvMitt/Electronics-Store-Management/actions/runs/40869621423 (push run). Both lint/build and real MongoDB API tests passed. Earlier failures and the supported-kernel runner fix remain visible in commit/run history. Native Windows/macOS jobs were added afterwards and require their own executed evidence.
