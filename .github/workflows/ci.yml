@@ -35,7 +35,9 @@ jobs:
 
   api-tests:
     name: API and database tests
-    runs-on: ubuntu-24.04
+    # Ubuntu 24.04 runners currently use a 7.0.0 Azure kernel that triggers
+    # MongoDB SERVER-136848. Ubuntu 22.04 uses the supported 6.8 kernel.
+    runs-on: ubuntu-22.04
     timeout-minutes: 10
     env:
       TEST_MONGODB_URI: mongodb://127.0.0.1:27018/techzone_test?replicaSet=techzone-dev
