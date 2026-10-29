@@ -24,6 +24,15 @@ brew tap mongodb/brew
 brew install mongodb-community@8.0
 ```
 
+If Homebrew reports that `mongodb/brew` is untrusted, explicitly trust MongoDB's official formula and repeat the installation:
+
+```bash
+brew trust --formula mongodb/brew/mongodb-community@8.0
+brew install mongodb-community@8.0
+```
+
+This additional step is required by newer Homebrew releases. Older releases that install successfully do not need it.
+
 Follow Homebrew's printed PATH instructions if needed. Native Apple Silicon and Intel installations have different prefixes; avoid hardcoding `/usr/local` on Apple Silicon. Confirm `git --version`, `node --version`, `npm --version`, and `mongod --version` work. You do not need `brew services start`; the project helper manages its own instance. If Node.js LTS is already installed, reuse it.
 
 ### Linux — Terminal
