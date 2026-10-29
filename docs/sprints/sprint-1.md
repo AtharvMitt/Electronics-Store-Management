@@ -18,4 +18,7 @@ Total: 8 points. Annamalai owns #6/#7, Apurv #9/#11, and Avaneesh #10/#19. Sprin
 
 ## Review and retrospective
 
+- #8 implementation opened for teammate review as PR #27; not merged or Done. Local foundation checks passed (see `docs/verification.md`).
+- #12: Added separate lint/build and API/database checks, including a transaction-capable ephemeral MongoDB environment. Successful remote execution will be linked after the branch is pushed.
+
 Pending integrated delivery and teammate review. Add actual demo links, merged commits, test evidence, and retrospective outcomes. Do not infer completion from issue status alone.
