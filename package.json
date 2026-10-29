@@ -17,7 +17,9 @@
     "test": "npm test -w server",
     "lint": "eslint .",
     "db:start": "node scripts/mongo-dev.mjs start",
-    "db:stop": "node scripts/mongo-dev.mjs stop"
+    "db:stop": "node scripts/mongo-dev.mjs stop",
+    "db:setup": "npm run db:setup -w server",
+    "db:seed": "npm run db:seed -w server"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
