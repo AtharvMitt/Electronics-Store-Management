@@ -28,4 +28,8 @@ Cross-platform follow-up: replaced Unix-only MongoDB `--fork` with Node-managed 
 
 ## Issue #12 — 2026-10-29
 
-The Linux CI workflow passed on commit `d0afd3e`: https://github.com/AtharvMitt/Electronics-Store-Management/actions/runs/40869627836 (PR run) and https://github.com/AtharvMitt/Electronics-Store-Management/actions/runs/40869621423 (push run). Both lint/build and real MongoDB API tests passed. Earlier failures and the supported-kernel runner fix remain visible in commit/run history. Native Windows/macOS jobs were added afterwards and require their own executed evidence.
+The Linux CI workflow passed on commit `d0afd3e`: https://github.com/AtharvMitt/Electronics-Store-Management/actions/runs/40869627836 (PR run) and https://github.com/AtharvMitt/Electronics-Store-Management/actions/runs/40869621423 (push run). Both lint/build and real MongoDB API tests passed. Earlier failures and the supported-kernel runner fix remain visible in commit/run history.
+
+The complete CI branch then passed **all four checks** on `a533eb2`: [run 40871621952](https://github.com/AtharvMitt/Electronics-Store-Management/actions/runs/40871621952). This includes native Windows 2025 and macOS 15 install/start/test/lint/build/stop checks, not just Linux containers. The macOS installation requires trust for MongoDB's official Homebrew tap including its database-tools dependency; README and CI were corrected from the observed failures.
+
+The full schema implementation passed **all four checks** on `0355864`: [PR run 40871635802](https://github.com/AtharvMitt/Electronics-Store-Management/actions/runs/40871635802). All 16 API/schema tests passed with no skips in the Linux, Windows and macOS database jobs. Each native job used the actual portable project MongoDB startup/shutdown helper. Native Windows/macOS build and lint checks also passed. Browser interaction and cross-browser UI testing remain feature/integration work.
