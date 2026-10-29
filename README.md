@@ -18,6 +18,7 @@ From the repository root:
 npm ci
 cp .env.example .env
 npm run db:start
+npm run db:setup
 npm run dev
 ```
 
@@ -60,6 +61,10 @@ To use an existing replica set, configure `MONGODB_URI` and `TEST_MONGODB_URI` i
 | `DEV_MONGODB_PORT` | Port for the optional project MongoDB helper |
 
 `.env` is ignored. Keep credentials out of source control, client-side environment variables, screenshots, and logs.
+
+## Schema and development data
+
+Run `npm run db:setup` after starting MongoDB. To add repeatable development accounts and inventory examples, follow the interactive password instructions in [database setup](docs/database.md), then run `npm run db:seed`. No password is committed. That document describes the shared models, constraints, money units, future references, and migration policy. Authentication endpoints and business workflows remain in their own issues.
 
 ## Team workflow
 

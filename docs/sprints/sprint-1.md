@@ -20,5 +20,6 @@ Total: 8 points. Annamalai owns #6/#7, Apurv #9/#11, and Avaneesh #10/#19. Sprin
 
 - #8 implementation opened for teammate review as PR #27; not merged or Done. Local foundation checks passed (see `docs/verification.md`).
 - #12: Added separate lint/build and API/database checks, including a transaction-capable ephemeral MongoDB environment. Successful remote execution will be linked after the branch is pushed.
+- #24: Adapted the issue description/criteria to the owner's MongoDB decision without changing the integrity goals. Added versioned schema setup, database validators/indexes, shared reference/history guards and repeatable synthetic seeds. Original relational wording is explained in the issue and `docs/decisions.md`.
 
 Pending integrated delivery and teammate review. Add actual demo links, merged commits, test evidence, and retrospective outcomes. Do not infer completion from issue status alone.
