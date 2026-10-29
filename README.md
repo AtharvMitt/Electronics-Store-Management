@@ -131,6 +131,29 @@ To use an existing replica set, configure `MONGODB_URI` and `TEST_MONGODB_URI` i
 
 Run `npm run db:setup` after starting MongoDB. To add repeatable development accounts and inventory examples, follow the interactive password instructions in [database setup](docs/database.md), then run `npm run db:seed`. No password is committed. That document describes the shared models, constraints, money units, future references, and migration policy. Authentication endpoints and business workflows remain in their own issues.
 
+Optional seed command in **Windows PowerShell**:
+
+```powershell
+$seedSecret = Read-Host 'Development password (12–128 characters)' -AsSecureString
+$env:SEED_PASSWORD = [System.Net.NetworkCredential]::new('', $seedSecret).Password
+npm run db:seed
+Remove-Item Env:\SEED_PASSWORD
+Remove-Variable seedSecret
+```
+
+Optional seed command in **macOS zsh / Linux Bash**:
+
+```bash
+printf 'Development password (12–128 characters): '
+read -rs SEED_PASSWORD
+printf '\n'
+export SEED_PASSWORD
+npm run db:seed
+unset SEED_PASSWORD
+```
+
+Clear the password variable even if seeding fails. The seed creates synthetic `admin`, `inventory`, `purchase`, `sales`, `manager`, and `inactive` accounts at `@techzone.example.test`, with hashed passwords. Repeating it preserves existing passwords and stock. Login endpoints are delivered separately under #6; a successful seed does not mean authentication is implemented.
+
 ## Troubleshooting
 
 - **`mongod` not found:** install Community Server, add its bin folder to PATH, and reopen the terminal. Installing Compass/mongosh alone does not provide the server.
