@@ -15,3 +15,5 @@ Environment: Arch Linux; Node.js 26.12.1; npm 12.2.1; AUR `mongodb-bin` 8.3.9; p
 | `GET http://127.0.0.1:5173/api/ready` | HTTP 200, `{"status":"ready"}` through frontend proxy |
 
 This is foundation verification, not completed authentication, inventory, or transaction workflow testing. Browser interaction/cross-browser checks and teammate reproduction remain to be performed during review/integration. PR commits identify the tested implementation.
+
+Cross-platform follow-up: replaced Unix-only MongoDB `--fork` with Node-managed detached startup and project PID tracking, removed shell-dependent test globs, and added native Windows PowerShell/macOS/Linux cloning, PATH, configuration, validation, shutdown and troubleshooting instructions to README. Native CI checks are added under #12; only actually executed results are recorded.
