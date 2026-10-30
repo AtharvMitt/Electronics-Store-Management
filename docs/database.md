@@ -52,6 +52,8 @@ npm run db:setup
 
 Setup applies `001-initial-inventory-foundation`, creates collections/validators/indexes, and records the version in `_schemaMigrations`. Repeating it reports Already applied. Before adopting an existing collection, setup rejects documents that violate the proposed schema. It never deletes existing data. Mongoose automatic collection/index creation is disabled; setup is the authoritative initializer.
 
+Migration `002-authentication-sessions` (issue #6) adds the `sessions` collection: `tokenHash` (SHA-256 hex of the cookie token, unique), `userId` (User reference), `expiresAt` and `createdAt`. A TTL index on `expiresAt` lets MongoDB delete expired sessions; the API also rejects expired sessions itself because TTL cleanup can lag by about a minute. Existing databases pick it up with `npm run db:setup`.
+
 Future schema changes must introduce a new reviewed migration/version and data-conversion plan. Do not edit the meaning of an already applied version or delete its record to force reinitialization. No destructive reset command is supplied.
 
 ## Development seed data
@@ -79,7 +81,7 @@ Remove-Variable seedSecret
 
 Use `npm.cmd` if PowerShell blocks `npm.ps1`. The password is temporarily passed in the process environment for hashing, never stored in a tracked file. Clear it after seeding, including if the command fails.
 
-Six synthetic accounts are defined at `admin`, `inventory`, `purchase`, `sales`, `manager`, and `inactive` **@techzone.example.test**. They cover all five roles plus an inactive account. Passwords use a salted scrypt hash; no default password is committed or printed. User JSON excludes the hash, and normal queries do not select it. The authentication owner can use `verifyPassword` from `modules/shared/passwords.js`; account status and permissions still need enforcement in #6/#7.
+Six synthetic accounts are defined at `admin`, `inventory`, `purchase`, `sales`, `manager`, and `inactive` **@techzone.example.test**. They cover all five roles plus an inactive account. Passwords use a salted scrypt hash; no default password is committed or printed. User JSON excludes the hash, and normal queries do not select it. Log in to the app with any active seeded account and the seed password. Login and account-status checks are implemented in #6; role permissions follow in #7.
 
 Products cover normal stock, below threshold, exactly at threshold, zero stock, and inactive status. Nonzero opening balances have a traceable adjustment event. Low stock includes equality (BR-003); #19 supplies the actual query/UI.
 
