@@ -1,11 +1,13 @@
-import { definitions } from './definitions.js';
+import { definitions, sessionDefinitions } from './definitions.js';
 
-const migrationId = '001-initial-inventory-foundation';
+// Applied in order. Never edit or remove an applied migration; add a new one instead.
+const migrations = [
+  { id: '001-initial-inventory-foundation', collections: definitions },
+  { id: '002-authentication-sessions', collections: sessionDefinitions },
+];
 
-export async function applySchema(db) {
-  const migrations = db.collection('_schemaMigrations');
-  if (await migrations.findOne({ _id: migrationId })) return { applied: false, migrationId };
-  for (const [name, { validator, indexes }] of Object.entries(definitions)) {
+async function applyCollections(db, collections) {
+  for (const [name, { validator, indexes }] of Object.entries(collections)) {
     const exists = await db.listCollections({ name }, { nameOnly: true }).hasNext();
     if (exists) {
       const invalid = await db.collection(name).countDocuments({ $nor: [validator] }, { limit: 1 });
@@ -16,6 +18,16 @@ export async function applySchema(db) {
     }
     if (indexes.length) await db.collection(name).createIndexes(indexes);
   }
-  await migrations.updateOne({ _id: migrationId }, { $setOnInsert: { appliedAt: new Date() } }, { upsert: true });
-  return { applied: true, migrationId };
+}
+
+export async function applySchema(db) {
+  const records = db.collection('_schemaMigrations');
+  const appliedIds = [];
+  for (const { id, collections } of migrations) {
+    if (await records.findOne({ _id: id })) continue;
+    await applyCollections(db, collections);
+    await records.updateOne({ _id: id }, { $setOnInsert: { appliedAt: new Date() } }, { upsert: true });
+    appliedIds.push(id);
+  }
+  return { applied: appliedIds.length > 0, appliedIds, migrationId: migrations.at(-1).id };
 }
