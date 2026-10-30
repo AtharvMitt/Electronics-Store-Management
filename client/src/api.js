@@ -26,3 +26,7 @@ export async function currentUser() {
 
 export const login = async (email, password) => (await call('/auth/login', { method: 'POST', body: { email, password } })).user;
 export const logout = () => call('/auth/logout', { method: 'POST' });
+export const listUsers = async () => (await call('/users')).users;
+
+// Only hides UI. The server checks the same permission on every request.
+export const can = (user, permission) => Boolean(user?.permissions?.includes(permission));

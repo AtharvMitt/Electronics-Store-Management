@@ -1,18 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { currentUser, logout } from './api.js';
+import { can, currentUser, logout } from './api.js';
 import { LoginForm } from './LoginForm.jsx';
+import { UserList } from './UserList.jsx';
 import './styles.css';
 
 const ROLE_LABELS = { ADMIN: 'Administrator', INVENTORY: 'Inventory staff', PURCHASE: 'Purchase staff', SALES: 'Sales staff', MANAGER: 'Store manager' };
 
+// Each action appears only for roles with its permission (SRS §13.1).
+const MODULES = [
+  ['01', 'Products', 'Manage your catalogue and categories.', [['products:create', 'Add products'], ['products:update', 'Edit products'], ['products:deactivate', 'Deactivate products']]],
+  ['02', 'Inventory', 'Track stock and replenishment needs.', [['inventory:adjust', 'Adjust stock'], ['reports:inventory', 'Inventory reports']]],
+  ['03', 'Purchases', 'Keep suppliers and incoming goods together.', [['suppliers:manage', 'Manage suppliers'], ['purchases:manage', 'Create purchase orders'], ['purchases:receive', 'Receive goods'], ['reports:purchases', 'Purchase reports']]],
+  ['04', 'Sales & reports', 'Record sales and review store activity.', [['sales:create', 'Record sales'], ['reports:sales', 'Sales reports']]],
+];
+
 function Dashboard({ user }) {
-  const modules = [
-    ['01', 'Products', 'Manage your catalogue and categories.'],
-    ['02', 'Inventory', 'Track stock and replenishment needs.'],
-    ['03', 'Purchases', 'Keep suppliers and incoming goods together.'],
-    ['04', 'Sales & reports', 'Record sales and review store activity.'],
-  ];
+  const modules = MODULES.map(([number, title, description, actions]) => [number, title, description, actions.filter(([permission]) => can(user, permission))]);
 
   return (
     <main className="py-14 sm:py-20">
@@ -20,15 +24,19 @@ function Dashboard({ user }) {
       <h1 className="my-7 text-4xl leading-[1.1] font-medium tracking-tight sm:text-6xl lg:text-7xl">A clearer view of<br />everyday operations.</h1>
       <p className="max-w-xl text-base leading-8 text-forest/65 sm:text-lg">One workspace for products, stock, purchases, and sales. Your team is preparing the first release.</p>
       <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {modules.map(([number, title, description]) => (
+        {modules.map(([number, title, description, actions]) => (
           <article key={number} className="rounded-xl border border-forest/15 bg-white/70 p-6">
             <span className="text-xs text-forest/55">{number}</span>
             <h2 className="mt-7 mb-3 text-xl font-semibold">{title}</h2>
             <p className="min-h-12 text-sm leading-6 text-forest/65">{description}</p>
+            <ul className="mt-4 space-y-1 text-sm">
+              {actions.length ? actions.map(([permission, label]) => <li key={permission}>· {label}</li>) : <li className="text-forest/55">View only</li>}
+            </ul>
             <span className="mt-6 inline-block rounded bg-lime-100 px-2 py-1 text-xs text-forest/75">In development</span>
           </article>
         ))}
       </div>
+      {can(user, 'users:view') && <UserList roleLabels={ROLE_LABELS} />}
     </main>
   );
 }
