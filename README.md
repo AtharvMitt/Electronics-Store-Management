@@ -138,3 +138,5 @@ To use an existing replica set, configure `MONGODB_URI` and `TEST_MONGODB_URI` i
 ## Team workflow
 
 Use an issue branch, focused commits, a linked PR, and another member's review before merging. See [contributing](CONTRIBUTING.md), [Sprint 1](docs/sprints/sprint-1.md), and [traceability](docs/traceability.md).
+
+GitHub Actions runs linting, the frontend build, and API/database tests. See [CI instructions](docs/ci.md) for triggers, local commands, and interpreting results.

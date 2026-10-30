@@ -1,0 +1,127 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - 'chore/**'
+      - 'ci/**'
+      - 'feat/**'
+      - 'fix/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static-checks:
+    name: Lint and frontend build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+
+  api-tests:
+    name: API and database tests
+    # Ubuntu 24.04 runners currently use a 7.0.0 Azure kernel that triggers
+    # MongoDB SERVER-136848. Ubuntu 22.04 uses the supported 6.8 kernel.
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    env:
+      TEST_MONGODB_URI: mongodb://127.0.0.1:27018/techzone_test?replicaSet=techzone-dev
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Start isolated MongoDB replica set
+        run: |
+          uname -r
+          docker run --detach --name techzone-mongo \
+            --publish 127.0.0.1:27018:27018 \
+            mongo:8.3.13 --replSet techzone-dev --bind_ip_all --port 27018
+          for attempt in {1..40}; do
+            if [ "$(docker inspect --format '{{.State.Running}}' techzone-mongo)" != true ]; then
+              docker logs techzone-mongo
+              exit 1
+            fi
+            if docker exec techzone-mongo mongosh --port 27018 --quiet --eval 'db.adminCommand({ping: 1})'; then
+              break
+            fi
+            sleep 1
+          done
+          docker exec techzone-mongo mongosh --port 27018 --quiet --eval \
+            'rs.initiate({_id: "techzone-dev", members: [{_id: 0, host: "127.0.0.1:27018"}]})'
+          node scripts/wait-for-mongo.mjs
+      - run: npm test
+      - name: Database diagnostics
+        if: failure()
+        run: docker logs --tail 100 techzone-mongo
+      - name: Stop database
+        if: always()
+        run: docker rm --force techzone-mongo
+
+  native-platforms:
+    name: Native setup (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2025, macos-15]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install MongoDB Community Server on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $mongoArchive = Join-Path $env:RUNNER_TEMP 'mongodb.zip'
+          $mongoDirectory = Join-Path $env:RUNNER_TEMP 'mongodb-community'
+          Invoke-WebRequest -Uri 'https://fastdl.mongodb.org/windows/mongodb-windows-x86_64-8.3.13.zip' -OutFile $mongoArchive
+          Expand-Archive -Path $mongoArchive -DestinationPath $mongoDirectory
+          $mongoExecutable = Get-ChildItem $mongoDirectory -Filter mongod.exe -Recurse | Select-Object -First 1
+          if (-not $mongoExecutable) { throw 'mongod.exe missing from the official archive' }
+          $mongoExecutable.Directory.FullName | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - name: Install MongoDB Community Server on macOS
+        if: runner.os == 'macOS'
+        run: |
+          brew tap mongodb/brew
+          brew trust mongodb/brew
+          brew install mongodb-community@8.0
+          echo "$(brew --prefix mongodb-community@8.0)/bin" >> "$GITHUB_PATH"
+      - run: npm ci
+      - name: Configure local environment
+        run: node -e "require('node:fs').copyFileSync('.env.example', '.env')"
+      - name: Start project MongoDB using the portable helper
+        id: database
+        run: npm run db:start
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      - name: Database diagnostics
+        if: failure()
+        run: node -e "const fs = require('node:fs'); const p = '.local/mongodb/mongod.log'; if (fs.existsSync(p)) console.log(fs.readFileSync(p, 'utf8').split('\n').slice(-100).join('\n'));"
+      - name: Stop project MongoDB using the portable helper
+        if: always() && steps.database.outcome == 'success'
+        run: npm run db:stop

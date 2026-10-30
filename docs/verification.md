@@ -17,3 +17,7 @@ Environment: Arch Linux; Node.js 26.12.1; npm 12.2.1; AUR `mongodb-bin` 8.3.9; p
 This is foundation verification, not completed authentication, inventory, or transaction workflow testing. Browser interaction/cross-browser checks and teammate reproduction remain to be performed during review/integration. PR commits identify the tested implementation.
 
 Cross-platform follow-up: replaced Unix-only MongoDB `--fork` with Node-managed detached startup and project PID tracking, removed shell-dependent test globs, and added native Windows PowerShell/macOS/Linux cloning, PATH, configuration, validation, shutdown and troubleshooting instructions to README. Native CI checks are added under #12; only actually executed results are recorded.
+
+## Issue #12 — 2026-10-29
+
+The Linux CI workflow passed on commit `d0afd3e`: https://github.com/AtharvMitt/Electronics-Store-Management/actions/runs/40869627836 (PR run) and https://github.com/AtharvMitt/Electronics-Store-Management/actions/runs/40869621423 (push run). Both lint/build and real MongoDB API tests passed. Earlier failures and the supported-kernel runner fix remain visible in commit/run history. Native Windows/macOS jobs were added afterwards and require their own executed evidence.
