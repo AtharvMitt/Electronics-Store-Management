@@ -4,12 +4,14 @@ import { User } from '../../database/models.js';
 import { hashPassword, verifyPassword } from '../shared/passwords.js';
 import { HttpError } from '../shared/errors.js';
 import { SESSION_COOKIE, endSession, readSessionToken, requireAuth, sessionCookieOptions, startSession } from './sessions.js';
+import { permissionsFor } from './permissions.js';
 
 // One message for unknown, wrong-password and inactive accounts (SEC-008, SEC-009).
 const LOGIN_FAILED = 'Invalid email or password.';
 let decoyHash;
 
-const publicUser = ({ _id, name, email, role }) => ({ id: String(_id), name, email, role });
+// Permissions let the client hide actions; the server still checks every request (SEC-004).
+export const publicUser = ({ _id, name, email, role }) => ({ id: String(_id), name, email, role, permissions: permissionsFor(role) });
 
 function readCredentials(body) {
   const { email, password } = body ?? {};
