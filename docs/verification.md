@@ -49,3 +49,17 @@ Environment: Windows 11; Node.js 24.13.0; MongoDB Community Server 8.3.11; proje
 | Browser, Log out | Returned to login form; `GET /api/auth/me` then returned 401 |
 
 Role permissions (#7), user management screens, login rate limiting and HTTPS deployment are not implemented or claimed by these checks.
+
+## Issue #7 — 2026-10-30
+
+Same environment as #6 above.
+
+| Check | Observed result |
+| --- | --- |
+| `npm run lint` | Passed |
+| `npm test` | 31 passed, 0 failed, 0 skipped (4 foundation, 12 schema, 9 auth, 6 permissions) |
+| `npm run build` | React/Tailwind production build passed |
+| Browser, seeded sales account | Cards list only "Record sales" and "Sales reports"; no Users panel; `GET /api/users` returned 403 |
+| Browser, seeded admin account | All 11 actions listed; Users panel showed all 6 seeded accounts |
+
+Feature routes for products, inventory, suppliers, purchases, sales and reports do not exist yet; their owners add `requirePermission` when they build them. User create/edit/deactivate screens (FR-AUTH-006) are not part of #7.
