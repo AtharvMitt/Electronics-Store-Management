@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import { databaseReady } from './config/database.js';
 import { authRoutes } from './modules/auth/routes.js';
+import { userRoutes } from './modules/users/routes.js';
 import { HttpError } from './modules/shared/errors.js';
 
 export function createApp({ clientOrigin = 'http://localhost:5173' } = {}) {
@@ -18,6 +19,7 @@ export function createApp({ clientOrigin = 'http://localhost:5173' } = {}) {
     res.status(ready ? 200 : 503).json({ status: ready ? 'ready' : 'unavailable' });
   });
   app.use('/api/auth', authRoutes());
+  app.use('/api/users', userRoutes());
   app.use((_req, res) => res.status(404).json({ error: { message: 'Route not found.' } }));
   // Express requires four parameters to recognize an error handler.
   app.use((error, _req, res, _next) => {

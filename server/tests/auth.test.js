@@ -33,7 +33,7 @@ after(async () => {
 test('TC-AUTH-01: valid credentials start a session and return the user without secrets (FR-AUTH-001)', async () => {
   const agent = request.agent(app);
   const response = await login(agent, '  Sales@TechZone.example.test ').expect(200);
-  assert.deepEqual(Object.keys(response.body.user).sort(), ['email', 'id', 'name', 'role']);
+  assert.deepEqual(Object.keys(response.body.user).sort(), ['email', 'id', 'name', 'permissions', 'role']);
   assert.equal(response.body.user.role, 'SALES');
   const cookie = response.headers['set-cookie'].join(';');
   assert.match(cookie, /tz_session=/);
