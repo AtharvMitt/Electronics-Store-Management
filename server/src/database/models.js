@@ -58,7 +58,14 @@ for (const operation of ['updateOne', 'updateMany', 'findOneAndUpdate', 'replace
   historySchema.pre(operation, function () { throw new Error('Inventory history is append-only.'); });
 }
 
+const sessionSchema = new Schema({
+  tokenHash: { type: String, required: true, match: /^[a-f0-9]{64}$/ },
+  userId: reference('User'), expiresAt: { type: Date, required: true },
+}, { ...options, timestamps: { createdAt: true, updatedAt: false } });
+referenceChecks(sessionSchema, { userId: 'User' });
+
 export const User = mongoose.model('User', userSchema, 'users');
+export const Session = mongoose.model('Session', sessionSchema, 'sessions');
 export const Category = mongoose.model('Category', categorySchema, 'categories');
 export const Product = mongoose.model('Product', productSchema, 'products');
 export const Inventory = mongoose.model('Inventory', inventorySchema, 'inventory');

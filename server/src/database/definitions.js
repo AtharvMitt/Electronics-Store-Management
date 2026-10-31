@@ -58,6 +58,18 @@ export const definitions = {
   ], { history: true }),
 };
 
+// Migration 002: server-side login sessions. Only a SHA-256 hash of the token is stored;
+// the TTL index lets MongoDB remove expired sessions.
+export const sessionDefinitions = {
+  sessions: definition({
+    tokenHash: { bsonType: 'string', pattern: '^[a-f0-9]{64}$' }, userId: reference, expiresAt: { bsonType: 'date' },
+  }, ['tokenHash', 'userId', 'expiresAt'], [
+    { key: { tokenHash: 1 }, name: 'session_token_unique', unique: true },
+    { key: { userId: 1 }, name: 'session_user' },
+    { key: { expiresAt: 1 }, name: 'session_expiry_ttl', expireAfterSeconds: 0 },
+  ], { history: true }),
+};
+
 // Adjustments reference their own history event and must record a reason.
 definitions.inventoryTransactions.validator = {
   $and: [

@@ -31,7 +31,7 @@ after(async () => {
 
 test('schema setup is replayable and creates the expected unique indexes', async () => {
   assert.equal((await applySchema(mongoose.connection.db)).applied, false);
-  assert.equal(await mongoose.connection.db.collection('_schemaMigrations').countDocuments(), 1);
+  assert.equal(await mongoose.connection.db.collection('_schemaMigrations').countDocuments(), 2);
   const indexes = await Product.collection.indexes();
   assert.ok(indexes.some(({ name, unique }) => name === 'product_sku_unique' && unique));
   const inventoryIndexes = await Inventory.collection.indexes();

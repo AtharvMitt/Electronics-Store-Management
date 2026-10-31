@@ -16,6 +16,6 @@ export default [
     plugins: { react, 'react-hooks': reactHooks },
     languageOptions: { globals: globals.browser },
     settings: { react: { version: 'detect' } },
-    rules: { ...react.configs.recommended.rules, ...reactHooks.configs.recommended.rules, 'react/react-in-jsx-scope': 'off' },
+    rules: { ...react.configs.recommended.rules, ...reactHooks.configs.recommended.rules, 'react/react-in-jsx-scope': 'off', 'react/prop-types': 'off' },
   },
 ];

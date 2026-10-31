@@ -33,3 +33,19 @@ The Linux CI workflow passed on commit `d0afd3e`: https://github.com/AtharvMitt/
 The complete CI branch then passed **all four checks** on `a533eb2`: [run 40871621952](https://github.com/AtharvMitt/Electronics-Store-Management/actions/runs/40871621952). This includes native Windows 2025 and macOS 15 install/start/test/lint/build/stop checks, not just Linux containers. The macOS installation requires trust for MongoDB's official Homebrew tap including its database-tools dependency; README and CI were corrected from the observed failures.
 
 The full schema implementation passed **all four checks** on `0355864`: [PR run 40871635802](https://github.com/AtharvMitt/Electronics-Store-Management/actions/runs/40871635802). All 16 API/schema tests passed with no skips in the Linux, Windows and macOS database jobs. Each native job used the actual portable project MongoDB startup/shutdown helper. Native Windows/macOS build and lint checks also passed. Browser interaction and cross-browser UI testing remain feature/integration work.
+
+## Issue #6 — 2026-10-30
+
+Environment: Windows 11; Node.js 24.13.0; MongoDB Community Server 8.3.11; project replica set `techzone-dev` on loopback port 27018.
+
+| Check | Observed result |
+| --- | --- |
+| `npm run db:setup` | Applied `001-initial-inventory-foundation, 002-authentication-sessions` |
+| `npm run lint` | Passed |
+| `npm test` | 25 passed, 0 failed, 0 skipped (4 foundation, 12 schema, 9 auth) |
+| `npm run build` | React/Tailwind production build passed |
+| Browser, wrong password | "Invalid email or password." shown; password field cleared; no session |
+| Browser, seeded sales account | Logged in; header shows name, role and Log out; session survives reload; cookie not readable from page JavaScript |
+| Browser, Log out | Returned to login form; `GET /api/auth/me` then returned 401 |
+
+Role permissions (#7), user management screens, login rate limiting and HTTPS deployment are not implemented or claimed by these checks.
