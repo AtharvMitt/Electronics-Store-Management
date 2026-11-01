@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { can, currentUser, logout } from './api.js';
 import { LoginForm } from './LoginForm.jsx';
 import { UserList } from './UserList.jsx';
+import { ProductCatalogue } from './ProductCatalogue.jsx';
 import './styles.css';
 
 const ROLE_LABELS = { ADMIN: 'Administrator', INVENTORY: 'Inventory staff', PURCHASE: 'Purchase staff', SALES: 'Sales staff', MANAGER: 'Store manager' };
@@ -37,6 +38,7 @@ function Dashboard({ user }) {
         ))}
       </div>
       {can(user, 'users:view') && <UserList roleLabels={ROLE_LABELS} />}
+      {can(user, 'products:view') && <ProductCatalogue user={user} />}
     </main>
   );
 }

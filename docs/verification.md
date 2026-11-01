@@ -1,5 +1,20 @@
 # Verification evidence
 
+## Issue #9 — 2026-11-01
+
+Environment: Arch Linux, Node.js 26.12.1, existing local MongoDB replica set on 127.0.0.1:27018. Tests use a generated `techzone_test_products_<random>` database and remove only that database.
+
+| Check | Observed result |
+| --- | --- |
+| `npm test` | 39 backend tests and 4 React DOM interaction tests passed; 0 failed, 0 skipped |
+| `npm run lint` | Passed |
+| `npm run build` | Passed |
+| `git diff --check` | Passed |
+
+Eight new database/API tests cover CRUD persistence, required/type/numeric validation, duplicate identifiers, missing/invalid references, authentication and role denial on every endpoint, product retirement/history preservation, protected category deletion, product/stock rollback and concurrent category deletion/reference creation. Four new React DOM tests cover creation, integer price conversion, editing, permission visibility, refresh, deactivation and deletion errors. Tests run through `npm test` and the existing four CI jobs; no workflow checks are weakened.
+
+Local sandbox network/process restrictions prevented direct MongoDB startup and npm download; checks were run with authorized elevated access against the already-running local replica set. Browser/cross-browser manual verification and peer review remain pending. Project 3 returned null to the ofsadug API token, so board fields/status could not be verified or changed. Original issue ownership, points and Epic are preserved. Remote CI evidence will be linked in the PR after execution; no CI pass is inferred from local results.
+
 ## Issue #8 — 2026-10-29
 
 Environment: Arch Linux; Node.js 26.12.1; npm 12.2.1; AUR `mongodb-bin` 8.3.9; project replica set `techzone-dev` on loopback port 27018.

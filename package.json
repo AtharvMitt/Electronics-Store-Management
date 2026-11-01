@@ -14,7 +14,7 @@
     "dev": "concurrently -k -n api,web \"npm run dev -w server\" \"npm run dev -w client\"",
     "build": "npm run build -w client",
     "start": "npm start -w server",
-    "test": "npm test -w server",
+    "test": "npm test -w server && npm test -w client",
     "lint": "eslint .",
     "db:start": "node scripts/mongo-dev.mjs start",
     "db:stop": "node scripts/mongo-dev.mjs stop",

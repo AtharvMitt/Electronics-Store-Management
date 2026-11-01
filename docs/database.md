@@ -100,4 +100,6 @@ These are coordination contracts, not implemented collections or workflows. #15/
 
 ## Verification
 
+Issue #9 adds transactional product/zero-stock creation, validated product/category APIs, product retirement and protected unused-category deletion without changing the schema. Category-reference writes and category deletion touch the category within the same transaction to prevent concurrent orphan creation. See [product contracts](products.md).
+
 `npm test` creates a uniquely named `techzone_test_schema_<random>` database, overrides the database component of `TEST_MONGODB_URI`, and deletes only that generated database at teardown. It does not reset the configured application database. Tests cover replay, seeds/password safety, stock constraints, duplicate keys, references, historical retention, and a forced transaction rollback. See `docs/verification.md` for executed results.
