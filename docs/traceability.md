@@ -4,6 +4,8 @@ IDs below are verified in the submitted SRS. SAD/STP are Parts II/III of `Team_9
 
 | Issue | Requirement/source | Implementation and verification |
 | --- | --- | --- |
+| #9 | FR-PROD-001/002/003/004/006; SRS §§13.1, 14.2; SAD §§8–9; BR-001/009; SEC-003/004 | `modules/products/service.js` and `routes.js`, `ProductCatalogue.jsx`; `server/tests/products.test.js` (TC-PROD-01/02/03/04/06), `client/tests/products-ui.test.js`; contracts and acceptance mapping in `docs/products.md` |
+| #9 | NFR-009; FR-COM-005 | Transactional product/zero-stock creation and category reference serialization; forced rollback and concurrent delete/reference integration tests |
 | #8 | SRS §§6–8; SAD §§3, 6, 13 | MERN workspace, environment configuration, MongoDB helper; `server/tests/foundation.test.js` checks real readiness |
 | #8 | SEC-007 | Server-only database URI, ignored `.env`; inspect configuration/client build |
 | #12 | NFR-005, NFR-006, NFR-011 | `.github/workflows/ci.yml`: lint/frontend build and real API/database tests; setup in `docs/ci.md` |

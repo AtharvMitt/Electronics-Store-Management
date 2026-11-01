@@ -14,6 +14,8 @@ Total: 8 points. Annamalai owns #6/#7, Apurv #9/#11, and Avaneesh #10/#19. Sprin
 
 ## Progress
 
+- 2026-11-01: #9 implemented independently from `origin/main` for ofsadug (5 points, Epic #2), using the issue's Sprint 1 dates of 28–31 October as confirmed in the #27 review. Product/category APIs, React catalogue, validation, retirement/integrity guards and automated tests are ready for peer review after CI. Local checks: 39 backend + 4 React tests passed, lint/build passed. No review, merge, Done status or sprint demo is claimed. Project 3 is inaccessible to the ofsadug token (GraphQL projectV2 null); no board fields changed. See `docs/products.md` and `docs/verification.md`.
+
 - 2026-10-29: Reviewed all three PDFs and live #8/#12/#24 acceptance criteria. Baseline `8f388ae` contained PDFs only. Recorded the owner's MERN/Tailwind and two-sprint decisions. Started #8 in its branch. AUR MongoDB binaries are available; no server listened on 27017, so development uses an isolated project instance on 27018.
 
 ## Review and retrospective

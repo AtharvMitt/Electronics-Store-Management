@@ -30,3 +30,12 @@ export const listUsers = async () => (await call('/users')).users;
 
 // Only hides UI. The server checks the same permission on every request.
 export const can = (user, permission) => Boolean(user?.permissions?.includes(permission));
+
+export const catalogue = {
+  products: async () => (await call('/products')).products,
+  categories: async () => (await call('/categories')).categories,
+  saveProduct: (id, body) => call(`/products${id ? `/${id}` : ''}`, { method: id ? 'PATCH' : 'POST', body }),
+  saveCategory: (id, body) => call(`/categories${id ? `/${id}` : ''}`, { method: id ? 'PATCH' : 'POST', body }),
+  deactivateProduct: (id) => call(`/products/${id}`, { method: 'DELETE' }),
+  deleteCategory: (id) => call(`/categories/${id}`, { method: 'DELETE' }),
+};
