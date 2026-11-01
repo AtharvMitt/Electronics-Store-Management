@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import { databaseReady } from './config/database.js';
 import { authRoutes } from './modules/auth/routes.js';
+import { inventoryRoutes } from './modules/inventory/routes.js';
 import { userRoutes } from './modules/users/routes.js';
 import { HttpError } from './modules/shared/errors.js';
 
@@ -18,6 +19,7 @@ export function createApp({ clientOrigin = 'http://localhost:5173' } = {}) {
     const ready = await databaseReady();
     res.status(ready ? 200 : 503).json({ status: ready ? 'ready' : 'unavailable' });
   });
+  app.use('/api/inventory', inventoryRoutes());
   app.use('/api/auth', authRoutes());
   app.use('/api/users', userRoutes());
   app.use((_req, res) => res.status(404).json({ error: { message: 'Route not found.' } }));

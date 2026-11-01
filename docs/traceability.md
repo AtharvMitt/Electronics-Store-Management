@@ -19,3 +19,5 @@ IDs below are verified in the submitted SRS. SAD/STP are Parts II/III of `Team_9
 Low stock includes equality: `available quantity <= minimum stock` (BR-003, FR-INV-004), to be covered by #19. Referenced products/suppliers are deactivated instead of deleting history (FR-PROD-006, BR-009).
 
 The original RTMs/STP have inconsistent planned test labels for atomicity (TC-NFR-09 versus TC-NFR-08). Use **NFR-009** as the stable reference and link actual test names/results during implementation.
+
+Issue #11: SRS FR-INV-002/003/005, BR-002/010/012, NFR-009/012, SEC-003/004, §§13.1/14.2; SAD §§8–10 → `modules/inventory/service.js` and `routes.js`, `StockAdjustments.jsx`, `server/tests/inventory.test.js` (TC-INV-02/03), `client/tests/inventory-ui.test.js`. Minimal FR-INV-001 read/refresh supports persistence verification; #10 owns search/filtering. [Stock contracts](stock-adjustments.md) map every criterion and define #16/#18 transaction integration. No FR-INV-006/history filtering or completed purchase/sale workflow is claimed.

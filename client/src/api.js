@@ -24,6 +24,11 @@ export async function currentUser() {
   }
 }
 
+export const inventoryApi = {
+  list: async () => (await call('/inventory')).inventory,
+  adjust: (productId, body) => call(`/inventory/${productId}/adjustments`, { method: 'POST', body }),
+};
+
 export const login = async (email, password) => (await call('/auth/login', { method: 'POST', body: { email, password } })).user;
 export const logout = () => call('/auth/logout', { method: 'POST' });
 export const listUsers = async () => (await call('/users')).users;
