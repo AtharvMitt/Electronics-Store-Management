@@ -89,6 +89,8 @@ Seeding uses a transaction, performs setup if needed, and preserves existing rec
 
 ## Future supplier/purchase/sale references
 
+Issue #11 provides [reusable stock adjustment services](stock-adjustments.md) with guarded quantity updates and atomic history writes, standalone or within a caller-owned transaction. It never creates a missing stock row. #16/#18 must use the same session for source/line writes and stock events; their business validation/idempotency remains in those stories.
+
 Reserve `suppliers`, `purchases`, and `sales` as the future collection names. Suggested document mapping from SRS §§14.3–14.4:
 
 - Supplier: name/contact fields/status; deactivate instead of deleting purchase history.

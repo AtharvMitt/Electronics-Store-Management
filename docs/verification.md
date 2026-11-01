@@ -78,3 +78,21 @@ Same environment as #6 above.
 | Browser, seeded admin account | All 11 actions listed; Users panel showed all 6 seeded accounts |
 
 Feature routes for products, inventory, suppliers, purchases, sales and reports do not exist yet; their owners add `requirePermission` when they build them. User create/edit/deactivate screens (FR-AUTH-006) are not part of #7.
+
+## Issue #11 — 2026-11-01
+
+Environment: Arch Linux, Node.js 26.12.1, local MongoDB replica set on 127.0.0.1:27018. Tests generate/drop only `techzone_test_inventory_<random>`; no application database reset.
+
+| Check | Observed result |
+| --- | --- |
+| `npm ci` | Clean locked install passed |
+| `npm test` | 42 backend + 4 React DOM tests passed; 0 failed, 0 skipped |
+| `npm run lint` | Passed |
+| `npm run build` | Passed |
+| `git diff --check` | Passed |
+
+Eleven new real database/API tests verify correct product/actor, increases/decreases, zero confirmation, exact depletion, safe integer bounds, malformed fields, unauthorized roles, missing/inactive product/stock, persistence via a new read, audit details, failure rollback, six concurrent increments and competing decrements, standalone service use, caller-owned transaction rollback, abort after caught audit failure, source references and source/stock/history rollback together. Four React tests cover signed adjustments and selected-product targeting, component reload, permission visibility, validation/insufficient-stock feedback, and saved-write/failed-refresh recovery without resubmission.
+
+Tests required authorized execution outside local sandbox network/process restrictions. Existing CI jobs run the same root command with real MongoDB and both workspaces; no checks/tests were weakened. Browser/cross-browser manual review and integrated Sprint 2 flows remain pending. No migration or dependency on #9 is required.
+
+`npm audit` reported six moderate findings through existing development lint dependencies (minimatch/eslint/react plugin); those locked versions match origin/main. No new test-tool package appeared in the audit findings. No forced dependency downgrade/major change was applied. Remote CI must be checked for the exact pushed commit; local results do not imply remote success.

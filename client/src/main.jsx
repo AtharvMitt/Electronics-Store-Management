@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { can, currentUser, logout } from './api.js';
+import { StockAdjustments } from './StockAdjustments.jsx';
 import { LoginForm } from './LoginForm.jsx';
 import { UserList } from './UserList.jsx';
 import { ProductCatalogue } from './ProductCatalogue.jsx';
@@ -37,6 +38,7 @@ function Dashboard({ user }) {
           </article>
         ))}
       </div>
+      {can(user, 'inventory:view') && <StockAdjustments user={user} />}
       {can(user, 'users:view') && <UserList roleLabels={ROLE_LABELS} />}
       {can(user, 'products:view') && <ProductCatalogue user={user} />}
     </main>
