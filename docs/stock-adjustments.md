@@ -12,7 +12,7 @@ SRS FR-INV-002/003/005, BR-002/010/012, NFR-009/012, §§13.1/14.2 and SAD §§8
 | Prevent negative stock | Guarded `$inc`, sufficient-stock bounds and database validators | TC-INV-03, zero/depletion/overflow and competing-removal tests |
 | Reusable by #16/#18 | Independent service, caller transactions and source/actor validation | Direct service, caller rollback, source-fixture and audit-failure tests |
 
-Tests: `server/tests/inventory.test.js` and `client/tests/inventory-ui.test.js`. Minimal FR-INV-001 active-stock display supports persisted-quantity verification. #10 owns search/filtering and #19 low-stock monitoring. No FR-INV-006/history browsing or completed purchase/sale workflow is claimed.
+Tests: `server/tests/inventory.test.js` and `client/tests/inventory-ui.test.js`. Minimal FR-INV-001 active-stock display supports persisted-quantity verification. Inventory search/filtering and low-stock monitoring are now implemented under #10/#19. No FR-INV-006/history browsing is claimed; #17 now integrates SALE source writes while purchase receipt remains in #16.
 
 ## HTTP and UI
 
