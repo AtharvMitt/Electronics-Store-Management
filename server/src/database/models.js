@@ -64,9 +64,36 @@ const sessionSchema = new Schema({
 }, { ...options, timestamps: { createdAt: true, updatedAt: false } });
 referenceChecks(sessionSchema, { userId: 'User' });
 
+const saleItemSchema = new Schema({
+  productId: reference('Product'), sku: text(40), name: text(150), quantity: integer(1),
+  unitPriceMinor: integer(), lineTotalMinor: integer(),
+}, { _id: false, strict: 'throw' });
+const saleSchema = new Schema({
+  transactionNumber: { ...text(40), unique: true }, requestId: { ...text(100), unique: true }, saleDate: { type: Date, required: true },
+  createdBy: reference('User'), totalMinor: integer(), items: { type: [saleItemSchema], required: true,
+    validate: { validator: (items) => Array.isArray(items) && items.length > 0 && items.length <= 100, message: 'Sales require between 1 and 100 items.' } },
+}, options);
+referenceChecks(saleSchema, { createdBy: 'User' });
+saleSchema.pre('validate', async function () {
+  const ids = this.items.map((item) => item.productId);
+  if (new Set(ids.map(String)).size !== ids.length) this.invalidate('items', 'A product may appear only once in a sale.');
+  const computedTotal = this.items.reduce((total, item) => {
+    const lineTotal = item.quantity * item.unitPriceMinor;
+    if (!Number.isSafeInteger(lineTotal) || lineTotal !== item.lineTotalMinor || !Number.isSafeInteger(total + lineTotal)) {
+      this.invalidate('items', 'Sale lines must have exact safe-integer totals.');
+      return total;
+    }
+    return total + lineTotal;
+  }, 0);
+  if (computedTotal !== this.totalMinor) this.invalidate('totalMinor', 'Sale total must equal the exact sum of its lines.');
+  const count = await Product.countDocuments({ _id: { $in: ids } }).session(this.$session());
+  if (count !== ids.length) this.invalidate('items', 'Sale products must exist.');
+});
+
 export const User = mongoose.model('User', userSchema, 'users');
 export const Session = mongoose.model('Session', sessionSchema, 'sessions');
 export const Category = mongoose.model('Category', categorySchema, 'categories');
 export const Product = mongoose.model('Product', productSchema, 'products');
 export const Inventory = mongoose.model('Inventory', inventorySchema, 'inventory');
 export const InventoryTransaction = mongoose.model('InventoryTransaction', historySchema, 'inventoryTransactions');
+export const Sale = mongoose.model('Sale', saleSchema, 'sales');

@@ -8,6 +8,23 @@ export function recordId(id, field = 'productId') {
   return id;
 }
 
+export function inventoryFilters(query) {
+  const allowed = ['search', 'categoryId', 'lowStockOnly'];
+  if (Object.keys(query).some((key) => !allowed.includes(key))) throw new HttpError(400, 'Unsupported inventory filter.');
+  const search = query.search ?? '';
+  if (typeof search !== 'string' || search.length > 100) throw new HttpError(400, 'search must be at most 100 characters.');
+  const categoryId = query.categoryId;
+  if (categoryId !== undefined) recordId(categoryId, 'categoryId');
+  const lowStockOnly = query.lowStockOnly ?? 'false';
+  if (!['true', 'false'].includes(lowStockOnly)) throw new HttpError(400, 'lowStockOnly must be true or false.');
+  const escaped = search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return {
+    search: escaped ? new RegExp(escaped, 'i') : null,
+    productMatch: categoryId ? { 'product.categoryId': new mongoose.Types.ObjectId(categoryId) } : {},
+    lowStockOnly: lowStockOnly === 'true',
+  };
+}
+
 export function adjustmentInput(body) {
   if (!body || typeof body !== 'object' || Array.isArray(body)
     || Object.keys(body).some((key) => !['changeQty', 'reason'].includes(key))) {

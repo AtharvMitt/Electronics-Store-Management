@@ -58,6 +58,27 @@ export const definitions = {
   ], { history: true }),
 };
 
+export const salesDefinitions = {
+  sales: definition({
+    transactionNumber: text(40), requestId: text(100), saleDate: { bsonType: 'date' }, createdBy: reference,
+    totalMinor: integer(), items: {
+      bsonType: 'array', minItems: 1, maxItems: 100, items: {
+        bsonType: 'object', additionalProperties: false,
+        required: ['productId', 'sku', 'name', 'quantity', 'unitPriceMinor', 'lineTotalMinor'],
+        properties: {
+          productId: reference, sku: text(40), name: text(150), quantity: integer(1),
+          unitPriceMinor: integer(), lineTotalMinor: integer(),
+        },
+      },
+    },
+  }, ['transactionNumber', 'requestId', 'saleDate', 'createdBy', 'totalMinor', 'items'], [
+    { key: { transactionNumber: 1 }, name: 'sale_number_unique', unique: true },
+    { key: { requestId: 1 }, name: 'sale_request_unique', unique: true },
+    { key: { saleDate: -1, _id: -1 }, name: 'sale_date' },
+    { key: { createdBy: 1 }, name: 'sale_actor' },
+  ]),
+};
+
 // Migration 002: server-side login sessions. Only a SHA-256 hash of the token is stored;
 // the TTL index lets MongoDB remove expired sessions.
 export const sessionDefinitions = {
