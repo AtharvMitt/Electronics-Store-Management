@@ -77,7 +77,7 @@ Same environment as #6 above.
 | Browser, seeded sales account | Cards list only "Record sales" and "Sales reports"; no Users panel; `GET /api/users` returned 403 |
 | Browser, seeded admin account | All 11 actions listed; Users panel showed all 6 seeded accounts |
 
-Feature routes for products, inventory, suppliers, purchases, sales and reports do not exist yet; their owners add `requirePermission` when they build them. User create/edit/deactivate screens (FR-AUTH-006) are not part of #7.
+At this 2026-10-30 #7 verification baseline, feature routes for products, inventory, suppliers, purchases, sales and reports did not exist yet; their owners added `requirePermission` in their feature work. User create/edit/deactivate screens (FR-AUTH-006) are not part of #7.
 
 ## Issue #11 — 2026-11-01
 
@@ -96,3 +96,16 @@ Eleven new real database/API tests verify correct product/actor, increases/decre
 Tests required authorized execution outside local sandbox network/process restrictions. Existing CI jobs run the same root command with real MongoDB and both workspaces; no checks/tests were weakened. Browser/cross-browser manual review and integrated Sprint 2 flows remain pending. No migration or dependency on #9 is required.
 
 `npm audit` reported six moderate findings through existing development lint dependencies (minimatch/eslint/react plugin); those locked versions match origin/main. No new test-tool package appeared in the audit findings. No forced dependency downgrade/major change was applied. Remote CI must be checked for the exact pushed commit; local results do not imply remote success.
+
+## Issues #10, #19, #17 and #20 — 2026-11-05
+
+Environment: Windows; Node.js 24.11.0; MongoDB Community Server 8.2 replica set on 127.0.0.1:27018. Tests generated unique database names and dropped only those databases.
+
+| Check | Observed result |
+| --- | --- |
+| `npm test` | 57 backend tests and 11 frontend tests passed; 0 failed, 0 skipped |
+| `npm run lint` | Passed |
+| `npm run build` | Vite production build passed |
+| `git diff --check` | Passed |
+
+New backend coverage checks stored inventory quantities, product/category search, category and low-stock filters, invalid/empty results, threshold equality and stock-change warnings; sale permissions, multi-line validation, exact minor-unit totals, insufficient-stock rejection, transaction retrieval, concurrent idempotent retries and audit-failure rollback; report permissions, date boundaries, empty results and totals against stored transactions. Frontend tests exercise filter/clear actions, low-stock status, sale entry/history refresh, report date filters and empty states. Migration 003 and direct MongoDB validators/indexes are covered in schema tests. These are automated integration/component checks; no manual browser or teammate review is claimed.

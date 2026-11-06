@@ -1,8 +1,8 @@
 // JSON requests to the API. The session cookie is HttpOnly, so the browser sends it automatically.
-async function call(path, { method = 'GET', body } = {}) {
+async function call(path, { method = 'GET', body, headers = {} } = {}) {
   const response = await fetch(`/api${path}`, {
     method,
-    headers: body ? { 'Content-Type': 'application/json' } : undefined,
+    headers: { ...(body ? { 'Content-Type': 'application/json' } : {}), ...headers },
     body: body ? JSON.stringify(body) : undefined,
   });
   if (response.status === 204) return null;
@@ -25,8 +25,40 @@ export async function currentUser() {
 }
 
 export const inventoryApi = {
-  list: async () => (await call('/inventory')).inventory,
+  list: async (filters = {}) => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(filters)) if (value !== '' && value !== false && value != null) params.set(key, String(value));
+    const query = params.size ? `?${params}` : '';
+    return (await call(`/inventory${query}`)).inventory;
+  },
   adjust: (productId, body) => call(`/inventory/${productId}/adjustments`, { method: 'POST', body }),
+};
+
+export const salesApi = {
+  list: async (filters = {}) => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(filters)) if (value) params.set(key, value);
+    return (await call(`/sales${params.size ? `?${params}` : ''}`)).sales;
+  },
+  create: (body, requestId) => call('/sales', { method: 'POST', body, headers: { 'Idempotency-Key': requestId } }),
+};
+
+export const reportsApi = {
+  sales: async (filters = {}) => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(filters)) if (value) params.set(key, value);
+    return call(`/reports/sales${params.size ? `?${params}` : ''}`);
+  },
+  inventory: async (filters = {}) => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(filters)) if (value) params.set(key, value);
+    return call(`/reports/inventory${params.size ? `?${params}` : ''}`);
+  },
+  lowStock: async (filters = {}) => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(filters)) if (value) params.set(key, value);
+    return call(`/reports/low-stock${params.size ? `?${params}` : ''}`);
+  },
 };
 
 export const login = async (email, password) => (await call('/auth/login', { method: 'POST', body: { email, password } })).user;

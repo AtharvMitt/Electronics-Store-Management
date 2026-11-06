@@ -7,7 +7,7 @@ import mongoose from 'mongoose';
 import '../src/config/env.js';
 import { applySchema } from '../src/database/setup.js';
 import { seedDevelopment } from '../src/database/seed.js';
-import { User, Category, Product, Inventory, InventoryTransaction } from '../src/database/models.js';
+import { User, Category, Product, Inventory, InventoryTransaction, Sale } from '../src/database/models.js';
 import { verifyPassword } from '../src/modules/shared/passwords.js';
 
 // Always override the URI's database with a unique name created by this process.
@@ -31,7 +31,7 @@ after(async () => {
 
 test('schema setup is replayable and creates the expected unique indexes', async () => {
   assert.equal((await applySchema(mongoose.connection.db)).applied, false);
-  assert.equal(await mongoose.connection.db.collection('_schemaMigrations').countDocuments(), 2);
+  assert.equal(await mongoose.connection.db.collection('_schemaMigrations').countDocuments(), 3);
   const indexes = await Product.collection.indexes();
   assert.ok(indexes.some(({ name, unique }) => name === 'product_sku_unique' && unique));
   const inventoryIndexes = await Inventory.collection.indexes();
@@ -65,6 +65,21 @@ test('seeds cover roles, account states and stock boundaries without exposing pa
   assert.ok(products.some((p) => quantities.get(String(p._id)) < p.minimumStock));
   assert.ok(products.some((p) => quantities.get(String(p._id)) === p.minimumStock));
   assert.ok(products.some((p) => quantities.get(String(p._id)) > p.minimumStock));
+});
+
+test('sales migration defines exact integer money, positive quantities and indexed transaction numbers', async () => {
+  const indexes = await Sale.collection.indexes();
+  assert.ok(indexes.some(({ name, unique }) => name === 'sale_number_unique' && unique));
+  assert.ok(indexes.some(({ name, unique }) => name === 'sale_request_unique' && unique));
+  const user = await User.findOne({ role: 'ADMIN' }), product = await Product.findOne({ status: 'ACTIVE' });
+  const raw = { _id: oid(), transactionNumber: `SALE-${oid()}`, requestId: `schema-${oid()}`, saleDate: new Date(), createdBy: user._id,
+    totalMinor: 100, items: [{ productId: product._id, sku: product.sku, name: product.name, quantity: 1, unitPriceMinor: 100, lineTotalMinor: 100 }],
+    createdAt: new Date(), updatedAt: new Date() };
+  await Sale.collection.insertOne(raw);
+  await assert.rejects(Sale.collection.insertOne({ ...raw, _id: oid(), transactionNumber: `SALE-${oid()}` }), { code: 11000 });
+  for (const update of [{ totalMinor: 0.5 }, { 'items.0.quantity': 0 }, { 'items.0.unitPriceMinor': -1 }]) {
+    await assert.rejects(Sale.collection.updateOne({ _id: raw._id }, { $set: update }), { code: 121 });
+  }
 });
 
 test('repeated seeding preserves stock, passwords and history rather than resetting development work', async () => {

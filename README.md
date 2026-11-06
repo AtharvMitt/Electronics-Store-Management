@@ -113,7 +113,7 @@ npm run db:stop
 
 The local helper binds only to loopback and does not enable authentication. Use it only on a trusted development machine. Shared/hosted deployments need authentication, least-privilege database credentials, network restrictions, and HTTPS; do not expose this local instance to the network.
 
-To use an existing replica set, configure `MONGODB_URI` and `TEST_MONGODB_URI` in `.env` and manage it yourself. `DEV_MONGODB_PORT` affects only the optional helper; if changing it, update both URIs too. A standalone instance can pass initial readiness, but cannot support transaction tests or future receipt/sale requirements.
+To use an existing replica set, configure `MONGODB_URI` and `TEST_MONGODB_URI` in `.env` and manage it yourself. `DEV_MONGODB_PORT` affects only the optional helper; if changing it, update both URIs too. A standalone instance can pass initial readiness, but cannot support transaction tests or atomic receipt/sale workflows.
 
 ## Configuration
 

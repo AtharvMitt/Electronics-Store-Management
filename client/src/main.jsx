@@ -5,6 +5,9 @@ import { StockAdjustments } from './StockAdjustments.jsx';
 import { LoginForm } from './LoginForm.jsx';
 import { UserList } from './UserList.jsx';
 import { ProductCatalogue } from './ProductCatalogue.jsx';
+import { InventoryListing } from './InventoryListing.jsx';
+import { Sales } from './Sales.jsx';
+import { Reports } from './Reports.jsx';
 import './styles.css';
 
 const ROLE_LABELS = { ADMIN: 'Administrator', INVENTORY: 'Inventory staff', PURCHASE: 'Purchase staff', SALES: 'Sales staff', MANAGER: 'Store manager' };
@@ -18,6 +21,8 @@ const MODULES = [
 ];
 
 function Dashboard({ user }) {
+  const [inventoryVersion, setInventoryVersion] = useState(0);
+  const stockChanged = () => setInventoryVersion((version) => version + 1);
   const modules = MODULES.map(([number, title, description, actions]) => [number, title, description, actions.filter(([permission]) => can(user, permission))]);
 
   return (
@@ -38,9 +43,12 @@ function Dashboard({ user }) {
           </article>
         ))}
       </div>
-      {can(user, 'inventory:view') && <StockAdjustments user={user} />}
+      {can(user, 'inventory:view') && <InventoryListing refreshKey={inventoryVersion} />}
+      {can(user, 'inventory:view') && <StockAdjustments user={user} onInventoryChange={stockChanged} />}
       {can(user, 'users:view') && <UserList roleLabels={ROLE_LABELS} />}
       {can(user, 'products:view') && <ProductCatalogue user={user} />}
+      {(can(user, 'sales:view') || can(user, 'sales:create')) && <Sales user={user} onInventoryChange={stockChanged} />}
+      {(can(user, 'reports:sales') || can(user, 'reports:inventory')) && <Reports user={user} refreshKey={inventoryVersion} />}
     </main>
   );
 }

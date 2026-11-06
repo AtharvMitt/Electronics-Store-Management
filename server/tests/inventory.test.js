@@ -186,9 +186,11 @@ test('caller cannot catch an audit failure and commit the stock change alone', a
 test('future purchase/sale callers use existing source/actor references and the same atomic stock rules', async () => {
   const p = await fixture();
   const purchaseId = new mongoose.Types.ObjectId(), saleId = new mongoose.Types.ObjectId();
-  // Minimal source fixtures only: no Sprint 2 purchase/sale workflows are implemented.
+  // The sale source must meet the new sales collection validator; purchase remains a future source fixture.
   await mongoose.connection.db.collection('purchases').insertOne({ _id: purchaseId });
-  await mongoose.connection.db.collection('sales').insertOne({ _id: saleId });
+  await mongoose.connection.db.collection('sales').insertOne({ _id: saleId, transactionNumber: `SALE-${saleId}`, requestId: `stock-fixture-${saleId}`, saleDate: new Date(),
+    createdBy: actors.SALES._id, totalMinor: 0, items: [{ productId: p._id, sku: p.sku, name: p.name, quantity: 1, unitPriceMinor: 0, lineTotalMinor: 0 }],
+    createdAt: new Date(), updatedAt: new Date() });
   await applyStockChange(change(p, 4, { sourceType: 'PURCHASE', sourceId: purchaseId, createdBy: actors.PURCHASE._id }));
   await applyStockChange(change(p, -2, { sourceType: 'SALE', sourceId: saleId, createdBy: actors.SALES._id }));
   assert.equal(await stock(p), 2);
@@ -207,4 +209,31 @@ test('future purchase/sale callers use existing source/actor references and the 
   assert.equal(await mongoose.connection.db.collection('purchases').findOne({ _id: rolledBackSource }), null);
   assert.equal(await stock(p), 2);
   assert.equal(await InventoryTransaction.countDocuments({ productId: p._id }), 2);
+});
+
+test('TC-INV-01/04: stored stock search, category/low-stock filters, clearing and invalid filters', async () => {
+  const accessories = await Category.create({ name: 'Accessories' });
+  const thresholdCategory = await Category.create({ name: 'Threshold fixtures' });
+  const equality = await fixture(2);
+  await Product.updateOne({ _id: equality._id }, { $set: { minimumStock: 2, name: 'Wireless Mouse', categoryId: thresholdCategory._id } });
+  const above = await fixture(3);
+  await Product.updateOne({ _id: above._id }, { $set: { minimumStock: 2, name: 'USB Keyboard', categoryId: accessories._id } });
+  const query = (params = '') => request(app).get(`/api/inventory${params}`).set('Cookie', cookies.INVENTORY);
+  const all = (await query().expect(200)).body.inventory;
+  assert.equal(all.find((row) => row.productId === String(equality._id)).availableQty, 2);
+  assert.equal(all.find((row) => row.productId === String(equality._id)).lowStock, true);
+  assert.equal(all.find((row) => row.productId === String(above._id)).lowStock, false);
+  assert.deepEqual((await query('?search=wireless').expect(200)).body.inventory.map((row) => row.productId), [String(equality._id)]);
+  assert.deepEqual((await query(`?search=${equality.sku}`).expect(200)).body.inventory.map((row) => row.productId), [String(equality._id)]);
+  assert.deepEqual((await query('?search=Accessories').expect(200)).body.inventory.map((row) => row.productId), [String(above._id)]);
+  assert.deepEqual((await query(`?categoryId=${accessories._id}`).expect(200)).body.inventory.map((row) => row.productId), [String(above._id)]);
+  assert.deepEqual((await query(`?categoryId=${thresholdCategory._id}&lowStockOnly=true`).expect(200)).body.inventory.map((row) => row.productId), [String(equality._id)]);
+  assert.equal((await query('?search=no-match').expect(200)).body.inventory.length, 0);
+  assert.equal((await query('?search=.*').expect(200)).body.inventory.length, 0);
+  assert.equal((await query('?search=wireless&lowStockOnly=false').expect(200)).body.inventory.length, 1);
+  await adjust(equality._id, { changeQty: 1, reason: 'Restock' }).expect(201);
+  assert.equal((await query(`?categoryId=${thresholdCategory._id}&lowStockOnly=true`).expect(200)).body.inventory.some((row) => row.productId === String(equality._id)), false);
+  for (const invalid of ['?categoryId=bad', '?lowStockOnly=yes', `?unknown=1`, `?search=${'x'.repeat(101)}`]) await query(invalid).expect(400);
+  await request(app).get('/api/inventory').expect(401);
+  await request(app).get('/api/inventory').set('Cookie', cookies.SALES).set('X-Role', 'ADMIN').expect(200);
 });

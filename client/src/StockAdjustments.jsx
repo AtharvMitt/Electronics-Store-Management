@@ -4,7 +4,7 @@ import { can, inventoryApi } from './api.js';
 const inputClass = 'rounded border border-forest/25 bg-white px-3 py-2';
 const buttonClass = 'rounded border border-forest/25 px-3 py-2 disabled:opacity-50';
 
-export function StockAdjustments({ user, api = inventoryApi }) {
+export function StockAdjustments({ user, api = inventoryApi, onInventoryChange = () => {} }) {
   const [rows, setRows] = useState(null);
   const [productId, setProductId] = useState('');
   const [changeQty, setChangeQty] = useState('');
@@ -34,6 +34,7 @@ export function StockAdjustments({ user, api = inventoryApi }) {
     setBusy(true);
     try {
       const result = await api.adjust(productId, { changeQty: Number(changeQty), reason: reason.trim() });
+      onInventoryChange();
       setRows((current) => current?.map((row) => row.productId === productId ? { ...row, availableQty: result.inventory.availableQty } : row));
       setNotice(`Adjustment saved. Available quantity: ${result.inventory.availableQty}.`);
       setChangeQty(''); setReason('');
