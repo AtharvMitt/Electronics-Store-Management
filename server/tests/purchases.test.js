@@ -160,12 +160,14 @@ test('competing receipts cannot exceed the ordered quantity', async () => {
 });
 
 test('a receipt key used concurrently on different orders cannot commit two stock changes', async () => {
-  const product = await fixture(), body = await orderBody(product);
-  const first = (await create(body).expect(201)).body.purchase, second = (await create(body).expect(201)).body.purchase;
-  const receiptKey = key(), items = [{ productId: String(product._id), quantity: 1 }];
-  const responses = await Promise.all([receive(first._id, items, receiptKey), receive(second._id, items, receiptKey)]);
+  const product = await fixture(), other = await fixture(), body = await orderBody(product), otherBody = await orderBody(other);
+  const first = (await create(body).expect(201)).body.purchase, second = (await create(otherBody).expect(201)).body.purchase;
+  const receiptKey = key();
+  // Different products avoid relying on a shared stock-row write conflict: the
+  // durable receipt-key index itself must prevent the second receipt committing.
+  const responses = await Promise.all([receive(first._id, [{ productId: String(product._id), quantity: 1 }], receiptKey), receive(second._id, [{ productId: String(other._id), quantity: 1 }], receiptKey)]);
   assert.deepEqual(responses.map((response) => response.status).sort(), [201, 409]);
-  assert.equal(await stock(product), 6); assert.equal(await PurchaseReceipt.countDocuments({ requestId: receiptKey }), 1);
+  assert.equal(await stock(product) + await stock(other), 11); assert.equal(await PurchaseReceipt.countDocuments({ requestId: receiptKey }), 1);
   const orders = await Purchase.find({ _id: { $in: [first._id, second._id] } }).lean();
   assert.equal(orders.reduce((sum, order) => sum + order.items[0].receivedQty, 0), 1);
 });
