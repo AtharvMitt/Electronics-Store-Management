@@ -79,6 +79,17 @@ export const salesDefinitions = {
   ]),
 };
 
+// Migration 004: supplier contact details are optional in SRS §14.3.
+export const supplierDefinitions = {
+  suppliers: definition({
+    name: text(150), contactName: { bsonType: 'string', maxLength: 100 },
+    phone: { bsonType: 'string', maxLength: 30 }, email: { bsonType: 'string', maxLength: 254 },
+    address: { bsonType: 'string', maxLength: 250 }, status,
+  }, ['name', 'status'], [
+    { key: { status: 1, name: 1 }, name: 'supplier_status_name' },
+  ]),
+};
+
 // Migration 002: server-side login sessions. Only a SHA-256 hash of the token is stored;
 // the TTL index lets MongoDB remove expired sessions.
 export const sessionDefinitions = {

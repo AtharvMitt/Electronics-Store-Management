@@ -76,3 +76,13 @@ export const catalogue = {
   deactivateProduct: (id) => call(`/products/${id}`, { method: 'DELETE' }),
   deleteCategory: (id) => call(`/categories/${id}`, { method: 'DELETE' }),
 };
+
+export const suppliersApi = {
+  list: async (filters = {}) => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(filters)) if (value) params.set(key, value);
+    return (await call(`/suppliers${params.size ? `?${params}` : ''}`)).suppliers;
+  },
+  save: (id, body) => call(`/suppliers${id ? `/${id}` : ''}`, { method: id ? 'PATCH' : 'POST', body }),
+  deactivate: (id) => call(`/suppliers/${id}`, { method: 'DELETE' }),
+};

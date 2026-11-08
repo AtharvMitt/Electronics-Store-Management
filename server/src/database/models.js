@@ -21,6 +21,13 @@ userSchema.set('toJSON', { transform: (_document, result) => { delete result.pas
 const categorySchema = new Schema({ name: text(80) }, options);
 preserveReferencedRecords(categorySchema, [['Product', 'categoryId']]);
 
+const optionalText = (maxlength) => ({ type: String, trim: true, maxlength, default: '' });
+const supplierSchema = new Schema({
+  name: text(150), contactName: optionalText(100), address: optionalText(250), status,
+  phone: { ...optionalText(30), validate: (value) => !value || (/^\+?[\d\s().-]+$/.test(value) && /^[0-9]{7,15}$/.test(value.replace(/\D/g, ''))) },
+  email: { ...optionalText(254), lowercase: true, validate: (value) => !value || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) },
+}, options);
+
 const productSchema = new Schema({
   sku: { ...text(40), uppercase: true }, name: text(150), categoryId: reference('Category'),
   sellingPriceMinor: integer(), minimumStock: integer(), status,
@@ -93,6 +100,7 @@ saleSchema.pre('validate', async function () {
 export const User = mongoose.model('User', userSchema, 'users');
 export const Session = mongoose.model('Session', sessionSchema, 'sessions');
 export const Category = mongoose.model('Category', categorySchema, 'categories');
+export const Supplier = mongoose.model('Supplier', supplierSchema, 'suppliers');
 export const Product = mongoose.model('Product', productSchema, 'products');
 export const Inventory = mongoose.model('Inventory', inventorySchema, 'inventory');
 export const InventoryTransaction = mongoose.model('InventoryTransaction', historySchema, 'inventoryTransactions');

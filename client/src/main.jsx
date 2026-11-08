@@ -8,6 +8,7 @@ import { ProductCatalogue } from './ProductCatalogue.jsx';
 import { InventoryListing } from './InventoryListing.jsx';
 import { Sales } from './Sales.jsx';
 import { Reports } from './Reports.jsx';
+import { Suppliers } from './Suppliers.jsx';
 import './styles.css';
 
 const ROLE_LABELS = { ADMIN: 'Administrator', INVENTORY: 'Inventory staff', PURCHASE: 'Purchase staff', SALES: 'Sales staff', MANAGER: 'Store manager' };
@@ -47,6 +48,7 @@ function Dashboard({ user }) {
       {can(user, 'inventory:view') && <StockAdjustments user={user} onInventoryChange={stockChanged} />}
       {can(user, 'users:view') && <UserList roleLabels={ROLE_LABELS} />}
       {can(user, 'products:view') && <ProductCatalogue user={user} />}
+      {can(user, 'suppliers:view') && <Suppliers user={user} />}
       {(can(user, 'sales:view') || can(user, 'sales:create')) && <Sales user={user} onInventoryChange={stockChanged} />}
       {(can(user, 'reports:sales') || can(user, 'reports:inventory')) && <Reports user={user} refreshKey={inventoryVersion} />}
     </main>
