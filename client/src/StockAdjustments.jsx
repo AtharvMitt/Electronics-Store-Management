@@ -4,7 +4,7 @@ import { can, inventoryApi } from './api.js';
 const inputClass = 'rounded border border-forest/25 bg-white px-3 py-2';
 const buttonClass = 'rounded border border-forest/25 px-3 py-2 disabled:opacity-50';
 
-export function StockAdjustments({ user, api = inventoryApi, onInventoryChange = () => {} }) {
+export function StockAdjustments({ user, api = inventoryApi, onInventoryChange = () => {}, refreshKey = 0 }) {
   const [rows, setRows] = useState(null);
   const [productId, setProductId] = useState('');
   const [changeQty, setChangeQty] = useState('');
@@ -17,7 +17,7 @@ export function StockAdjustments({ user, api = inventoryApi, onInventoryChange =
     let active = true;
     api.list().then((next) => { if (active) setRows(next); }).catch((failure) => { if (active) setError(failure.message); });
     return () => { active = false; };
-  }, [api]);
+  }, [api, refreshKey]);
 
   async function reload() {
     setBusy(true); setError('');
