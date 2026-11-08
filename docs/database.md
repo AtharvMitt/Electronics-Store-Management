@@ -12,6 +12,9 @@ This records the initial Sprint 1 data foundation, adapted from SRS §14 and SAD
 | `inventory` / Inventory | `productId`, `availableQty` | Unique product reference (one stock record per product); nonnegative integer quantity |
 | `inventoryTransactions` / InventoryTransaction | `productId`, `changeQty`, `sourceType`, `sourceId`, `createdBy`, `createdAt` | Signed integer change; PURCHASE/SALE/ADJUSTMENT; product/date, source and actor indexes; adjustment requires a reason |
 | `sales` / Sale | `transactionNumber`, `requestId`, `saleDate`, `createdBy`, `totalMinor`, `items` | Unique transaction and idempotency keys; integer-minor-unit prices/totals; positive safe-integer quantities; date and actor indexes |
+| `suppliers` / Supplier | `name`, optional contact fields, `status` | Status/name index; validated contacts; stable historical references through deactivation |
+| `purchases` / Purchase | `orderNumber`, `requestId`, `supplierId`, `supplierSnapshot`, `orderDate`, `status`, `createdBy`, `totalMinor`, `items` | Unique order/idempotency keys; exact costs/totals; received quantities bounded by order; supplier/date indexes |
+| `purchaseReceipts` / PurchaseReceipt | `requestId`, `purchaseId`, `receivedBy`, `receivedAt`, `items`, `inventoryTransactionIds` | Append-only receipts; unique idempotency keys and linked inventory events; atomic purchase/stock/history writes |
 
 Every collection has an ObjectId `_id`. Mutable records have `createdAt`/`updatedAt`; history has `createdAt` only. Names, SKU and reasons use the SRS length limits. Integer quantities and prices are bounded by JavaScript's safe integer range. Schemas reject unknown fields.
 
@@ -60,6 +63,8 @@ Migration `002-authentication-sessions` (issue #6) adds the `sessions` collectio
 
 Migration `003-sales-records` (issue #17) adds the validated `sales` collection, unique transaction and idempotency keys, and sale-date/actor indexes. It preserves all existing collections and records; run `npm run db:setup` to apply it.
 
+Migration `004-suppliers` (#15) adds supplier profiles and status/name indexing. Migration `005-purchase-orders-receipts` (#16) adds purchase orders and immutable receipts, validates exact money and received-quantity/status bounds, and indexes durable idempotency/history relationships. Neither migration changes previous migration definitions or existing records. Run `npm run db:setup` to upgrade; detailed contracts are in [suppliers and purchases](suppliers-purchases.md).
+
 Future schema changes must introduce a new reviewed migration/version and data-conversion plan. Do not edit the meaning of an already applied version or delete its record to force reinitialization. No destructive reset command is supplied.
 
 ## Development seed data
@@ -97,14 +102,14 @@ Seeding uses a transaction, performs setup if needed, and preserves existing rec
 
 Issue #11 provides [reusable stock adjustment services](stock-adjustments.md) with guarded quantity updates and atomic history writes, standalone or within a caller-owned transaction. It never creates a missing stock row. #16 must use the same session for source/line writes and stock events; its receipt validation/idempotency remains in that story. Issue #17 uses this service for atomic sale writes.
 
-`suppliers` and `purchases` remain future collections. The sale model follows the existing SRS §§14.3–14.4 mapping:
+The implemented supplier/purchase collections extend the existing SRS §§14.3–14.4 mapping:
 
 - Supplier: name/contact fields/status; deactivate instead of deleting purchase history.
 - Purchase: `supplierId`, order date/status, exact total, and embedded item lines containing `productId`, ordered/received quantities and unit cost. Retain line prices; received quantity must not exceed ordered quantity.
 - Sale: unique transaction number, sale date, `createdBy`, exact total and embedded product/quantity/unit-price lines; implemented in issue #17.
 - History: purchase/sale `sourceId` references those root documents, with product and responsible-user links. Sale line details are retained in `sales`; any receipt-specific operation/retry IDs belong in a reviewed purchase migration.
 
-Supplier and purchase contracts remain coordination notes for #15/#16. Sales use migration `003-sales-records` and the atomic service documented in [inventory-sales-reports.md](inventory-sales-reports.md).
+Supplier/purchase contracts, partial receipts and history preservation are documented in [suppliers-purchases.md](suppliers-purchases.md). Sales use migration `003-sales-records` and the atomic service documented in [inventory-sales-reports.md](inventory-sales-reports.md).
 
 ## Verification
 

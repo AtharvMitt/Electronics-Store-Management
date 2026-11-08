@@ -107,6 +107,12 @@ Stop the web/API processes with Ctrl+C in their terminal, then stop the project 
 npm run db:stop
 ```
 
+## Supplier management and purchase receipts
+
+After updating to the supplier/purchase implementation (#15/#16), run `npm run db:setup` against the running database to apply migrations `004-suppliers` and `005-purchase-orders-receipts`. Existing application records are preserved.
+
+Admin and Purchase staff can manage supplier contacts, create/edit draft or ordered purchases, and record partial/full receipts. Creating an order does not change stock; saving a receipt increases only the quantities actually received. All roles can view suppliers and purchase history; history supports supplier/date/status filters. See [supplier and purchase contracts](docs/suppliers-purchases.md) for permissions, validation, safe retries and atomicity.
+
 ## Local MongoDB
 
 `db:start` uses the installed `mongod` to manage a separate development replica set, `techzone-dev`, on **127.0.0.1:27018**. Node handles process startup on Windows, macOS, and Linux, including paths with spaces; no Unix-only `--fork` flag or shell background command is used. Data/logs live in ignored `.local/mongodb/`. It does not modify your system service or databases on 27017. Repeating the command reuses project data. Replica-set support enables atomic multi-document operations required by later inventory stories.

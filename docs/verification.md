@@ -1,5 +1,24 @@
 # Verification evidence
 
+## Stories #15 and #16 — suppliers, purchase orders and receipts
+
+Environment: Arch Linux, Node.js 26.12.1, MongoDB 8.3 replica set on loopback port 27018. New tests create/drop only uniquely named `techzone_test_suppliers_*`, `techzone_test_purchases_*` and `techzone_test_purchase_upgrade_*` databases. Existing application data and seed definitions are unchanged.
+
+| Check | Observed result |
+| --- | --- |
+| `npm ci` | Locked installation passed; zero audit vulnerabilities reported |
+| `npm test` | 75 backend/database tests and 20 frontend interaction tests passed; zero failed/skipped |
+| `npm run lint` | Passed |
+| `npm run build` | Passed |
+| `git diff --check` | Passed |
+| Automated Brave/Chromium browser smoke | Supplier creation/edit/deactivation, active selection, exact order totals, partial/full receipts, stock/alert/adjustment/sale availability refresh, over-receipt rejection, stable supplier snapshots, Sales read-only controls and backend 403 passed; no uncaught page exceptions |
+
+New coverage verifies all five roles and unauthenticated requests, required/optional supplier fields, persistence, unknown/invalid purchase fields and references, date boundaries, exact safe-integer costs/totals, draft/order/cancel transitions, no stock change on order creation, correctly targeted partial/full receipts, receipt history, over-receipt and stock limits, concurrent same-key retries, conflicting keys across different orders/products, and failure rollback. Forced second-line audit and receipt-persistence errors leave order quantities, stock, receipt records and inventory history unchanged, then permit a successful retry.
+
+The migration-upgrade test constructs the actual 001–003 collections/validators/indexes with an existing record, applies only 004/005, confirms preservation and repeatability, and checks durable receipt-key/history indexes. The existing #11 purchase-source fixture now conforms to the new validator without bypassing constraints or weakening assertions. No new package or seed change is needed.
+
+React tests exercise supplier mutations/read-only roles, active selection, exact costs, history filters, order editing/cancellation, receipt input validation, lost-response retries with locked original content/key, and saved-write/failed-refresh recovery. Automated browser verification used a separate temporary test database and application ports, then removed that database. Human peer review and Firefox/Edge verification remain pending. Existing CI jobs run the same root commands on Linux and native Windows/macOS; remote results must be checked for the actual PR head and are linked in the PR.
+
 ## Issue #9 — 2026-11-01
 
 Environment: Arch Linux, Node.js 26.12.1, existing local MongoDB replica set on 127.0.0.1:27018. Tests use a generated `techzone_test_products_<random>` database and remove only that database.
