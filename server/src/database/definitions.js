@@ -90,6 +90,72 @@ export const supplierDefinitions = {
   ]),
 };
 
+export const PURCHASE_STATUSES = ['DRAFT', 'ORDERED', 'PARTIAL', 'RECEIVED', 'CANCELLED'];
+const requestFingerprint = { bsonType: 'string', pattern: '^[a-f0-9]{64}$' };
+const purchaseLines = {
+  bsonType: 'array', minItems: 1, maxItems: 100, items: {
+    bsonType: 'object', additionalProperties: false,
+    required: ['_id', 'productId', 'sku', 'name', 'orderedQty', 'receivedQty', 'unitCostMinor', 'lineTotalMinor'],
+    properties: {
+      _id: reference, productId: reference, sku: text(40), name: text(150),
+      orderedQty: integer(1), receivedQty: integer(), unitCostMinor: integer(), lineTotalMinor: integer(),
+    },
+  },
+};
+
+// Migration 005: orders do not change stock; receipts and stock commit together.
+export const purchaseDefinitions = {
+  purchases: definition({
+    orderNumber: text(40), requestId: text(100), requestFingerprint, supplierId: reference,
+    supplierSnapshot: { bsonType: 'object', additionalProperties: false, required: ['name'], properties: {
+      name: text(150), contactName: { bsonType: 'string', maxLength: 100 }, phone: { bsonType: 'string', maxLength: 30 },
+      email: { bsonType: 'string', maxLength: 254 }, address: { bsonType: 'string', maxLength: 250 },
+    } },
+    orderDate: { bsonType: 'date' }, status: { enum: PURCHASE_STATUSES }, createdBy: reference,
+    totalMinor: integer(), items: purchaseLines,
+  }, ['orderNumber', 'requestId', 'requestFingerprint', 'supplierId', 'supplierSnapshot', 'orderDate', 'status', 'createdBy', 'totalMinor', 'items'], [
+    { key: { orderNumber: 1 }, name: 'purchase_number_unique', unique: true },
+    { key: { requestId: 1 }, name: 'purchase_request_unique', unique: true },
+    { key: { supplierId: 1, orderDate: -1 }, name: 'purchase_supplier_date' },
+    { key: { orderDate: -1, _id: -1 }, name: 'purchase_date' },
+  ]),
+  purchaseReceipts: definition({
+    requestId: text(100), requestFingerprint, purchaseId: reference, receivedBy: reference, receivedAt: { bsonType: 'date' },
+    items: { bsonType: 'array', minItems: 1, maxItems: 100, items: {
+      bsonType: 'object', additionalProperties: false, required: ['productId', 'quantity'],
+      properties: { productId: reference, quantity: integer(1) },
+    } },
+    inventoryTransactionIds: { bsonType: 'array', minItems: 1, maxItems: 100, items: reference },
+  }, ['requestId', 'requestFingerprint', 'purchaseId', 'receivedBy', 'receivedAt', 'items', 'inventoryTransactionIds'], [
+    { key: { requestId: 1 }, name: 'receipt_request_unique', unique: true },
+    { key: { purchaseId: 1, receivedAt: -1 }, name: 'receipt_purchase_date' },
+    { key: { inventoryTransactionIds: 1 }, name: 'receipt_history_unique', unique: true },
+  ], { history: true }),
+};
+
+purchaseDefinitions.purchases.validator = { $and: [purchaseDefinitions.purchases.validator, { $expr: { $and: [
+  { $eq: ['$totalMinor', { $sum: '$items.lineTotalMinor' }] },
+  { $eq: [{ $size: '$items' }, { $size: { $setUnion: ['$items.productId', []] } }] },
+  { $allElementsTrue: { $map: { input: '$items', as: 'line', in: { $and: [
+    { $lte: ['$$line.receivedQty', '$$line.orderedQty'] },
+    { $eq: ['$$line.lineTotalMinor', { $multiply: ['$$line.orderedQty', '$$line.unitCostMinor'] }] },
+  ] } } } },
+  { $switch: { branches: [
+    { case: { $in: ['$status', ['DRAFT', 'ORDERED', 'CANCELLED']] }, then: { $eq: [{ $sum: '$items.receivedQty' }, 0] } },
+    { case: { $eq: ['$status', 'RECEIVED'] }, then: { $allElementsTrue: { $map: { input: '$items', as: 'line', in: { $eq: ['$$line.receivedQty', '$$line.orderedQty'] } } } } },
+    { case: { $eq: ['$status', 'PARTIAL'] }, then: { $and: [
+      { $gt: [{ $sum: '$items.receivedQty' }, 0] },
+      { $anyElementTrue: { $map: { input: '$items', as: 'line', in: { $lt: ['$$line.receivedQty', '$$line.orderedQty'] } } } },
+    ] } },
+  ], default: false } },
+] } }] };
+
+purchaseDefinitions.purchaseReceipts.validator = { $and: [purchaseDefinitions.purchaseReceipts.validator, { $expr: { $and: [
+  { $eq: [{ $size: '$items' }, { $size: { $setUnion: ['$items.productId', []] } }] },
+  { $eq: [{ $size: '$items' }, { $size: '$inventoryTransactionIds' }] },
+  { $eq: [{ $size: '$inventoryTransactionIds' }, { $size: { $setUnion: ['$inventoryTransactionIds', []] } }] },
+] } }] };
+
 // Migration 002: server-side login sessions. Only a SHA-256 hash of the token is stored;
 // the TTL index lets MongoDB remove expired sessions.
 export const sessionDefinitions = {
