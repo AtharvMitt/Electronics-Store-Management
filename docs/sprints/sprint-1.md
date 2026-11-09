@@ -10,11 +10,11 @@ Deliver the integrated internal-store foundation: authentication/permissions, pr
 | #12 — GitHub Actions | 3 | `ci/12-github-actions` | #8 |
 | #24 — Database setup/schema/seeds | 3 | `feat/24-mongodb-schema` | #8; #12 provides automated checks |
 
-Total: 8 points. Annamalai owns #6/#7, Apurv #9/#11, and Avaneesh #10/#19. Sprint 2 runs 4–11 November; Atharv owns #15/#16.
+Total: 8 points. Annamalai owns #6/#7, Apurv #9/#11, and Avaneesh #10/#19. Sprint 2 runs 5–9 November; Atharv owns #15/#16.
 
 ## Progress
 
-- 2026-11-01: #9 implemented independently from `origin/main` for ofsadug (5 points, Epic #2), using the issue's Sprint 1 dates of 28–31 October as confirmed in the #27 review. Product/category APIs, React catalogue, validation, retirement/integrity guards and automated tests are ready for peer review after CI. Local checks: 39 backend + 4 React tests passed, lint/build passed. No review, merge, Done status or sprint demo is claimed. Project 3 is inaccessible to the ofsadug token (GraphQL projectV2 null); no board fields changed. See `docs/products.md` and `docs/verification.md`.
+- 2026-11-01: #9 implemented independently from `origin/main` for ofsadug (5 points, Epic #2) for Sprint 1 (28 October–4 November 2026). Product/category APIs, React catalogue, validation, retirement/integrity guards and automated tests are ready for peer review after CI. Local checks: 39 backend + 4 React tests passed, lint/build passed. No review, merge, Done status or sprint demo is claimed. Project 3 is inaccessible to the ofsadug token (GraphQL projectV2 null); no board fields changed. See `docs/products.md` and `docs/verification.md`.
 
 - 2026-10-29: Reviewed all three PDFs and live #8/#12/#24 acceptance criteria. Baseline `8f388ae` contained PDFs only. Recorded the owner's MERN/Tailwind and two-sprint decisions. Started #8 in its branch. AUR MongoDB binaries are available; no server listened on 27017, so development uses an isolated project instance on 27018.
 
@@ -27,4 +27,4 @@ Total: 8 points. Annamalai owns #6/#7, Apurv #9/#11, and Avaneesh #10/#19. Sprin
 
 Pending integrated delivery and teammate review. Add actual demo links, merged commits, test evidence, and retrospective outcomes. Do not infer completion from issue status alone.
 
-- 2026-11-01: #11 implemented independently from `origin/main` for ofsadug (3 points, Epic #2), using issue Sprint 1 dates 28–31 October. Reusable stock service, atomic stock/history writes, guarded concurrent changes and React workflow verified: clean install, 42 backend + 4 React tests, lint and build passed. #16/#18 retain purchase/sale integration ownership. Project 3 was inaccessible to the token; fields/assignments remain untouched. PR creation is reserved for the user, who will request AtharvMitt's review; neither this story nor #9 is claimed Done. See `docs/stock-adjustments.md` and `docs/verification.md`.
+- 2026-11-01: #11 implemented independently from `origin/main` for ofsadug (3 points, Epic #2) for Sprint 1 (28 October–4 November 2026). Reusable stock service, atomic stock/history writes, guarded concurrent changes and React workflow verified: clean install, 42 backend + 4 React tests, lint and build passed. #16/#18 retain purchase/sale integration ownership. Project 3 was inaccessible to the token; fields/assignments remain untouched. PR creation is reserved for the user, who will request AtharvMitt's review; neither this story nor #9 is claimed Done. See `docs/stock-adjustments.md` and `docs/verification.md`.
