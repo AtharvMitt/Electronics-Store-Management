@@ -129,6 +129,20 @@ Environment: Windows; Node.js 24.11.0; MongoDB Community Server 8.2 replica set 
 
 New backend coverage checks stored inventory quantities, product/category search, category and low-stock filters, invalid/empty results, threshold equality and stock-change warnings; sale permissions, multi-line validation, exact minor-unit totals, insufficient-stock rejection, transaction retrieval, concurrent idempotent retries and audit-failure rollback; report permissions, date boundaries, empty results and totals against stored transactions. Frontend tests exercise filter/clear actions, low-stock status, sale entry/history refresh, report date filters and empty states. Migration 003 and direct MongoDB validators/indexes are covered in schema tests. These are automated integration/component checks; no manual browser or teammate review is claimed.
 
+## Issue #25 — 2026-11-09
+
+Environment: Windows 11; Node.js 24.13.0; MongoDB Community Server 8.3.11 replica set on 127.0.0.1:27018. The new test seeds and drops its own uniquely named database.
+
+| Check | Observed result |
+| --- | --- |
+| `npm run lint` | Passed |
+| `npm test` | 80 backend tests and 20 frontend tests passed; 0 failed, 0 skipped (5 new in `server/tests/permission-regression.test.js`) |
+
+`server/tests/permission-regression.test.js` re-checks the #7 matrix on the Sprint 2 endpoints. It sends all 16 supplier, purchase, sale and report operations as each of the 5 roles (80 requests): permitted roles pass authorization, the rest get 403, and the sweep creates no records. All 16 also return 401 without a session. Representative permitted transactions succeed end to end (Purchase staff create a supplier and order, Admin receives it, Sales records a sale, Manager reads all reports) with the expected stock changes. Fully valid requests from roles without permission, including ones carrying forged role data, get 403 and change no records or stock. Expired, forged and logged-out sessions get 401 on a sale and change no stock.
+
+No permission defects were found, so no defect issues were opened. Every route already applies `requireAuth` and the matching permission before its handler.
+
+
 ## Issue #21 — 2026-11-09
 
 Environment: Windows 11; Node.js 24.13.0; MongoDB Community Server 8.3.11 replica set on 127.0.0.1:27018. The automated test seeds and drops its own uniquely named database.
