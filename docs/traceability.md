@@ -25,6 +25,7 @@ IDs below are verified in the submitted SRS. SAD/STP are Parts II/III of `Team_9
 | #20 | FR-REP-001/002/004/005, SRS §§13.1/14.5 | `modules/reports/` and `Reports.jsx`; tests verify backend authorization, stored totals, inclusive dates, category/status filters and low-stock results |
 | #15 | FR-PUR-001/002, BR-004/009/010, SRS §§13.1/14.3; TC-PUR-01/02 | `modules/suppliers/`, migration 004, `Suppliers.jsx`; supplier API/UI tests verify validated contacts, persistence, permissions, filtering, editing/deactivation and stable purchase snapshots |
 | #16 | FR-PUR-003–009, BR-004/005/006/009/010/011/012, NFR-004/009, SRS §§13.1/14.3; TC-PUR-03/04/05/07/08/09 | `modules/purchases/`, migration 005, `Purchase`/`PurchaseReceipt`, `Purchases.jsx`; purchase API/UI tests verify orders, partial/full receipts, history, exact totals, over-receipt rejection, permissions, idempotency and atomic rollback |
+| #26 | FR-PUR-006/007/008, FR-SALE-002/003/005, BR-002/006/007/008/012, NFR-004/009, SRS §§14.3/14.4 | `server/tests/stock-consistency.test.js` and `docs/stock-consistency.md`: direct-service targeted stock changes, full persisted-state snapshots, proven later-write rollback, transient sale retry regression/fix, durable replay checks and competing receipt/sale transactions |
 
 Low stock includes equality: `available quantity <= minimum stock` (BR-003, FR-INV-004), implemented under #19. Referenced products/suppliers are deactivated instead of deleting history (FR-PROD-006, BR-009).
 
