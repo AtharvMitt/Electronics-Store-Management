@@ -128,3 +128,19 @@ Environment: Windows; Node.js 24.11.0; MongoDB Community Server 8.2 replica set 
 | `git diff --check` | Passed |
 
 New backend coverage checks stored inventory quantities, product/category search, category and low-stock filters, invalid/empty results, threshold equality and stock-change warnings; sale permissions, multi-line validation, exact minor-unit totals, insufficient-stock rejection, transaction retrieval, concurrent idempotent retries and audit-failure rollback; report permissions, date boundaries, empty results and totals against stored transactions. Frontend tests exercise filter/clear actions, low-stock status, sale entry/history refresh, report date filters and empty states. Migration 003 and direct MongoDB validators/indexes are covered in schema tests. These are automated integration/component checks; no manual browser or teammate review is claimed.
+
+## Issue #21 — 2026-11-09
+
+Environment: Windows 11; Node.js 24.13.0; MongoDB Community Server 8.3.11 replica set on 127.0.0.1:27018. The automated test seeds and drops its own uniquely named database.
+
+| Check | Observed result |
+| --- | --- |
+| `npm run lint` | Passed |
+| `npm test` | 87 backend tests and 20 frontend tests passed; 0 failed, 0 skipped (12 new in `server/tests/end-to-end.test.js`) |
+| `npm run build` | Vite production build passed |
+
+`server/tests/end-to-end.test.js` runs one store workflow in order through the HTTP API, each step logged in as the role that would do it: Inventory staff create a category and two products (zero stock); a sale is blocked with no stock; Purchase staff add a supplier and order 10 + 5 units (ordering leaves stock unchanged); goods arrive in two receipts (PARTIAL then RECEIVED) and an over-receipt is rejected; Inventory staff write off one damaged unit with a reason; Sales record a two-line sale with exact minor-unit totals, and a retry with the same Idempotency-Key does not deduct twice; a sale failing on one line deducts nothing; both products then appear as low stock, including one exactly at its minimum; the Manager's sales and inventory reports match the stored sale and stock; each product's history adds up to its current stock and records the right source and actor; a deactivated product keeps its stock and history but cannot be sold or reordered; and a logged-out session cannot record a sale.
+
+Browser check on the integrated app (seeded development data): Purchase staff saw supplier and purchase actions but view-only products, inventory and sales; receiving the remaining 3 units of a partially received order changed it to RECEIVED and updated the inventory and stock tables from 7 to 10 without a reload. Sales staff then saw "10 available", recorded a sale of 2 (total 4998.00), and the inventory table, sale product list and sales history updated to 8 immediately.
+
+No defects were found in the integrated workflow, so no defect issues were opened.
