@@ -1,4 +1,4 @@
-# Sprint 2 — supplier and purchase delivery
+# Sprint 2 — 5–9 November 2026
 
 ## Goal and ownership
 

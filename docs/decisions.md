@@ -12,7 +12,7 @@ The project owner explicitly selected **MERN, Tailwind CSS, two sprints, GitHub 
 | Jira | Existing GitHub Project 3 and issues |
 | Jenkins | GitHub Actions |
 | pytest | Node.js test runner and Supertest; frontend tests added with actual features |
-| Six-sprint schedule | Sprint 1: 28 October–4 November; Sprint 2: 4–11 November 2026 |
+| Six-sprint schedule | Sprint 1: 28 October–4 November; Sprint 2: 5–9 November 2026 |
 | SonarQube or similar | ESLint initially; no deployed SonarQube service claimed |
 
 Business scope and verified requirement IDs remain the baseline. The technology/physical data design changes; required behavior remains.
