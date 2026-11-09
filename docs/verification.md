@@ -141,3 +141,20 @@ Environment: Windows 11; Node.js 24.13.0; MongoDB Community Server 8.3.11 replic
 `server/tests/permission-regression.test.js` re-checks the #7 matrix on the Sprint 2 endpoints. It sends all 16 supplier, purchase, sale and report operations as each of the 5 roles (80 requests): permitted roles pass authorization, the rest get 403, and the sweep creates no records. All 16 also return 401 without a session. Representative permitted transactions succeed end to end (Purchase staff create a supplier and order, Admin receives it, Sales records a sale, Manager reads all reports) with the expected stock changes. Fully valid requests from roles without permission, including ones carrying forged role data, get 403 and change no records or stock. Expired, forged and logged-out sessions get 401 on a sale and change no stock.
 
 No permission defects were found, so no defect issues were opened. Every route already applies `requireAuth` and the matching permission before its handler.
+
+
+## Issue #21 — 2026-11-09
+
+Environment: Windows 11; Node.js 24.13.0; MongoDB Community Server 8.3.11 replica set on 127.0.0.1:27018. The automated test seeds and drops its own uniquely named database.
+
+| Check | Observed result |
+| --- | --- |
+| `npm run lint` | Passed |
+| `npm test` | 87 backend tests and 20 frontend tests passed; 0 failed, 0 skipped (12 new in `server/tests/end-to-end.test.js`) |
+| `npm run build` | Vite production build passed |
+
+`server/tests/end-to-end.test.js` runs one store workflow in order through the HTTP API, each step logged in as the role that would do it: Inventory staff create a category and two products (zero stock); a sale is blocked with no stock; Purchase staff add a supplier and order 10 + 5 units (ordering leaves stock unchanged); goods arrive in two receipts (PARTIAL then RECEIVED) and an over-receipt is rejected; Inventory staff write off one damaged unit with a reason; Sales record a two-line sale with exact minor-unit totals, and a retry with the same Idempotency-Key does not deduct twice; a sale failing on one line deducts nothing; both products then appear as low stock, including one exactly at its minimum; the Manager's sales and inventory reports match the stored sale and stock; each product's history adds up to its current stock and records the right source and actor; a deactivated product keeps its stock and history but cannot be sold or reordered; and a logged-out session cannot record a sale.
+
+Browser check on the integrated app (seeded development data): Purchase staff saw supplier and purchase actions but view-only products, inventory and sales; receiving the remaining 3 units of a partially received order changed it to RECEIVED and updated the inventory and stock tables from 7 to 10 without a reload. Sales staff then saw "10 available", recorded a sale of 2 (total 4998.00), and the inventory table, sale product list and sales history updated to 8 immediately.
+
+No defects were found in the integrated workflow, so no defect issues were opened.
