@@ -153,6 +153,35 @@ test('sale rollback removes the sale and both in-flight deductions after the sec
   assert.equal(await InventoryTransaction.countDocuments({ sourceId: sale._id }), 2);
 });
 
+test('a transient conflict after sale writes retries the transaction without duplicating stock or history', async () => {
+  const { first, second, untouched } = await fixtures(), requestId = key();
+  const items = [receivedLine(first, 2), receivedLine(second, 3)];
+  const original = InventoryTransaction.create;
+  let calls = 0, rolledBackEvent, observed;
+  const stub = mock.method(InventoryTransaction, 'create', async function (...args) {
+    calls++;
+    if (calls === 2) {
+      const session = args[1].session;
+      observed = { inTransaction: session.inTransaction(), quantities: await quantities([first, second, untouched], session) };
+      const error = new mongoose.mongo.MongoServerError({ message: 'Forced transient stock conflict', code: 112 });
+      error.addErrorLabel('TransientTransactionError');
+      throw error;
+    }
+    const result = await original.apply(this, args);
+    if (calls === 1) rolledBackEvent = result[0]._id;
+    return result;
+  });
+  let sale;
+  try { sale = await sell(items, requestId); }
+  finally { stub.mock.restore(); }
+  assert.equal(calls, 4, 'two audit attempts fail mid-transaction, then two writes succeed on retry');
+  assert.deepEqual(observed, { inTransaction: true, quantities: [6, 3, 19] });
+  assert.deepEqual(await quantities([first, second, untouched]), [6, 3, 19]);
+  assert.equal(await Sale.countDocuments({ requestId }), 1);
+  assert.equal(await InventoryTransaction.countDocuments({ sourceId: sale._id }), 2);
+  assert.equal(await InventoryTransaction.findById(rolledBackEvent), null);
+});
+
 test('a receipt persistence failure after all stock/history writes rolls the whole operation back', async () => {
   const { first, second, untouched } = await fixtures(), purchase = await order([orderLine(first), orderLine(second)]);
   const items = [receivedLine(first, 2), receivedLine(second, 3)], requestId = key();

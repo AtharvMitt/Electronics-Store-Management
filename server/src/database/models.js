@@ -72,10 +72,11 @@ const sessionSchema = new Schema({
 }, { ...options, timestamps: { createdAt: true, updatedAt: false } });
 referenceChecks(sessionSchema, { userId: 'User' });
 
+// Embedded sale lines have no version field; retries must not try to reset one.
 const saleItemSchema = new Schema({
   productId: reference('Product'), sku: text(40), name: text(150), quantity: integer(1),
   unitPriceMinor: integer(), lineTotalMinor: integer(),
-}, { _id: false, strict: 'throw' });
+}, { _id: false, versionKey: false, strict: 'throw' });
 const saleSchema = new Schema({
   transactionNumber: { ...text(40), unique: true }, requestId: { ...text(100), unique: true }, saleDate: { type: Date, required: true },
   createdBy: reference('User'), totalMinor: integer(), items: { type: [saleItemSchema], required: true,
