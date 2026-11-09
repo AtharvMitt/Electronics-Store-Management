@@ -3,5 +3,98 @@
 @theme {
   --font-sans: ui-sans-serif, system-ui, sans-serif;
   --color-forest: #142a24;
-  --color-paper: #f5f5ef;
+  --color-paper: #f4f6f4;
+}
+
+body { margin: 0; }
+button, a, input, select { -webkit-tap-highlight-color: transparent; }
+button:not(:disabled), select:not(:disabled) { cursor: pointer; }
+:where(a, button, input, select):focus-visible { outline: 3px solid #6a936f; outline-offset: 3px; }
+[hidden] { display: none !important; }
+
+.app-shell { display: flex; flex-direction: column; }
+.app-header { position: sticky; top: 0; z-index: 10; min-height: 84px; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 16px 32px; background: white; border-bottom: 1px solid #dfe5e1; }
+.brand { display: flex; align-items: center; gap: 12px; font-size: 21px; font-weight: 750; letter-spacing: -.6px; text-decoration: none; }
+.brand-mark { display: grid; place-items: center; position: relative; width: 42px; height: 42px; border-radius: 12px; background: #142a24; color: white; font-size: 26px; }
+.brand-mark > span { color: #c4ed99; position: absolute; right: 7px; bottom: 4px; }
+.brand-caption { display: block; margin-top: 2px; color: #65756d; font-size: 11px; font-weight: 450; letter-spacing: .1px; }
+.logout-button { padding: 9px 16px; border: 1px solid #d6ded8; border-radius: 8px; background: white; font-size: 13px; font-weight: 600; }
+.logout-button:hover { background: #f0f4f0; }
+.staff-label { color: #65756d; font-size: 12px; }
+.app-error { margin: 16px 32px; border-radius: 8px; padding: 12px 16px; background: #fef2f2; color: #991b1b; font-size: 14px; }
+.app-footer { display: flex; justify-content: space-between; gap: 16px; margin-top: auto; padding: 18px 32px; border-top: 1px solid #dfe5e1; color: #65756d; font-size: 11px; background: white; }
+.skip-link { position: fixed; top: -100px; left: 16px; z-index: 20; padding: 12px 18px; background: #142a24; color: white; border-radius: 8px; }
+.skip-link:focus { top: 12px; }
+
+.workspace { flex: 1; display: grid; grid-template-columns: 216px minmax(0, 1fr); }
+.workspace-sidebar { position: sticky; top: 84px; align-self: start; min-height: calc(100dvh - 134px); max-height: calc(100dvh - 84px); overflow-y: auto; display: flex; flex-direction: column; padding: 32px 16px 24px; border-right: 1px solid #dfe5e1; background: #fbfcfa; }
+.sidebar-label { display: block; padding: 0 14px; color: #728177; font-size: 10px; font-weight: 650; letter-spacing: 1.4px; text-transform: uppercase; }
+.workspace-nav { display: grid; gap: 5px; margin-top: 16px; }
+.workspace-nav a { display: flex; align-items: center; gap: 12px; width: 100%; border-radius: 8px; padding: 12px 14px; color: #52655b; font-size: 14px; text-align: left; text-decoration: none; }
+.workspace-nav a:hover { background: #edf2ed; }
+.workspace-nav a[aria-current="page"] { background: #e3eddf; color: #214a32; font-weight: 650; }
+.nav-arrow { margin-left: auto; font-size: 19px; opacity: 0; }
+.workspace-nav a[aria-current="page"] .nav-arrow { opacity: 1; }
+.sidebar-note { margin-top: auto; padding: 64px 14px 0; color: #718076; font-size: 11px; line-height: 1.7; }
+.sidebar-note .sidebar-label { padding: 0; }
+.sidebar-note p { margin: 8px 0 5px; color: #304b3a; font-size: 13px; font-weight: 600; }
+.workspace-main { min-width: 0; padding: 32px clamp(20px, 3vw, 48px) 48px; }
+.workspace-heading { margin: 0 auto 28px; max-width: 1440px; }
+.eyebrow { display: flex; gap: 10px; color: #718076; font-size: 11px; }
+.workspace-heading h1 { margin: 20px 0 8px; font-size: clamp(26px, 3vw, 34px); font-weight: 650; letter-spacing: -1px; line-height: 1.2; outline: none; }
+.workspace-heading > p:last-child { color: #65756d; font-size: 14px; line-height: 1.7; }
+.workspace-screen { max-width: 1440px; margin: auto; padding: 28px; background: white; border: 1px solid #dfe5e1; border-radius: 12px; box-shadow: 0 2px 5px #142a2403; }
+
+/* A single page surface replaces the separate cards around every module. */
+.workspace-screen > section { margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; }
+.workspace-screen > section + section { margin-top: 32px; padding-top: 28px; border-top: 1px solid #dfe5e1; }
+.workspace-screen h2 { font-size: 18px; letter-spacing: -.3px; }
+.workspace-screen h3 { font-size: 14px; }
+.workspace-screen :is(form, [aria-label="Purchase details"]) { padding: 18px; border-radius: 8px; background: #f5f7f4; gap: 14px; }
+.workspace-screen form > label, .workspace-screen [aria-label="Purchase details"] > label { flex: 1 1 170px; min-width: 0; color: #4f6256; font-size: 12px; font-weight: 500; }
+.workspace-screen form > label:has(input[type="checkbox"]) { flex: 0 1 auto; }
+.workspace-screen :is(input:not([type="checkbox"]), select) { width: 100%; min-width: 0; min-height: 40px; border: 1px solid #cfd9d1; border-radius: 6px; background: white; padding: 9px 11px; color: #243c2e; font-size: 13px; font-weight: 400; }
+.workspace-screen input[type="checkbox"] { accent-color: #31593c; }
+.workspace-screen button { min-height: 38px; border-color: #cfd9d1; border-radius: 6px; padding: 8px 12px; background: white; color: #294b34; font-size: 12px; font-weight: 550; line-height: 1.5; }
+.workspace-screen button:hover:not(:disabled) { background: #edf3e9; border-color: #90a98f; }
+.workspace-screen button:disabled { cursor: not-allowed; opacity: .5; }
+.workspace-screen form > button:first-of-type { border-color: #294b34; background: #294b34; color: white; }
+.workspace-screen form > button:first-of-type:hover:not(:disabled) { background: #1c3b27; }
+.workspace-screen :is(input, select):disabled { color: #718076; background: #eef1ed; }
+.workspace-screen table { min-width: 640px; border-collapse: separate; border-spacing: 0; line-height: 1.6; }
+.workspace-screen th { padding: 12px; background: #f3f6f2; border-bottom: 1px solid #dfe5e1; color: #627365; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.workspace-screen td { padding: 14px 12px; border-bottom: 1px solid #edf0eb; color: #344c3c; font-size: 12px; vertical-align: top; overflow-wrap: break-word; }
+.workspace-screen tbody tr:hover { background: #fafcf9; }
+.workspace-screen tbody tr:last-child td { border-bottom: 0; }
+.workspace-screen td button { min-height: 32px; padding: 5px 8px; }
+.workspace-screen [role="alert"] { border-radius: 6px; background: #fef2f2; padding: 12px; color: #991b1b; font-size: 13px; }
+.workspace-screen p[role="status"] { border-radius: 6px; padding: 12px; background: #f0f5eb; font-size: 13px; }
+.workspace-screen li { font-size: 13px; }
+
+@media (min-width: 1800px) { .workspace { grid-template-columns: 240px minmax(0, 1fr); } }
+@media (max-width: 900px) {
+  .workspace { display: flex; flex-direction: column; }
+  .workspace-sidebar { position: static; align-self: stretch; min-height: 0; max-height: none; padding: 12px 20px; border-right: 0; border-bottom: 1px solid #dfe5e1; }
+  .workspace-sidebar > .sidebar-label, .sidebar-note { display: none; }
+  .workspace-nav { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; }
+  .workspace-nav a { width: auto; padding: 9px 12px; gap: 8px; font-size: 13px; }
+  .nav-arrow { display: none; }
+  .workspace-main { padding: 24px 20px 36px; }
+}
+@media (max-width: 520px) {
+  .app-header { padding: 14px 16px; min-height: 76px; gap: 12px; }
+  .brand { font-size: 18px; gap: 9px; }
+  .brand-caption { font-size: 9px; }
+  .brand-mark { width: 36px; height: 36px; font-size: 23px; }
+  .logout-button { padding: 8px 10px; font-size: 12px; }
+  .workspace-sidebar { padding: 10px 12px; }
+  .workspace-nav a { padding: 9px; font-size: 12px; }
+  .workspace-nav svg { width: 17px; height: 17px; }
+  .workspace-main { padding: 24px 12px; }
+  .workspace-heading { margin-bottom: 20px; padding: 0 4px; }
+  .workspace-screen { padding: 18px 14px; }
+  .workspace-screen :is(form, [aria-label="Purchase details"]) { padding: 14px; }
+  .workspace-screen form > label, .workspace-screen [aria-label="Purchase details"] > label { flex-basis: 100%; }
+  .workspace-screen li { flex-wrap: wrap; }
+  .app-footer { padding: 16px; font-size: 10px; }
 }
