@@ -9,6 +9,8 @@ import { HttpError } from './modules/shared/errors.js';
 import { productRoutes, categoryRoutes } from './modules/products/routes.js';
 import { saleRoutes } from './modules/sales/routes.js';
 import { reportRoutes } from './modules/reports/routes.js';
+import { supplierRoutes } from './modules/suppliers/routes.js';
+import { purchaseRoutes } from './modules/purchases/routes.js';
 
 export function createApp({ clientOrigin = 'http://localhost:5173' } = {}) {
   const app = express();
@@ -29,6 +31,8 @@ export function createApp({ clientOrigin = 'http://localhost:5173' } = {}) {
   app.use('/api/categories', categoryRoutes());
   app.use('/api/sales', saleRoutes());
   app.use('/api/reports', reportRoutes());
+  app.use('/api/suppliers', supplierRoutes());
+  app.use('/api/purchases', purchaseRoutes());
   app.use((_req, res) => res.status(404).json({ error: { message: 'Route not found.' } }));
   // Express requires four parameters to recognize an error handler.
   app.use((error, _req, res, _next) => {

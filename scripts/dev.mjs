@@ -1,5 +1,6 @@
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -7,7 +8,14 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const host = process.env.HOST || '127.0.0.1';
 const apiPort = Number(process.env.PORT || 5000);
 const apiUrl = `http://${host}:${apiPort}/api/ready`;
-const viteCli = path.join(root, 'client', 'node_modules', 'vite', 'bin', 'vite.js');
+// Resolve from the client workspace so npm's hoisted installs work too.
+const requireClient = createRequire(new URL('../client/package.json', import.meta.url));
+let viteCli;
+try {
+  viteCli = path.join(path.dirname(requireClient.resolve('vite/package.json')), 'bin', 'vite.js');
+} catch (cause) {
+  throw new Error('Vite is missing. Run npm ci before starting development.', { cause });
+}
 const node = process.execPath;
 const children = new Set();
 let shuttingDown = false;

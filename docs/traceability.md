@@ -21,6 +21,8 @@ IDs below are verified in the submitted SRS. SAD/STP are Parts II/III of `Team_9
 | #19 | FR-INV-004, BR-003, FR-REP-002 | Inventory API/UI and `/api/reports/low-stock` calculate `availableQty <= minimumStock` from stored records; threshold and stock-change tests cover boundary behavior |
 | #17 | FR-SALE-001–007, BR-007/008/011, NFR-004/009, SEC-003/004 | `modules/sales/`, `database/models.js`, migration `003-sales-records`, and `Sales.jsx`; `sales-reports.test.js` verifies permission, exact money, history filters, idempotency, stock validation and transaction rollback |
 | #20 | FR-REP-001/002/004/005, SRS §§13.1/14.5 | `modules/reports/` and `Reports.jsx`; tests verify backend authorization, stored totals, inclusive dates, category/status filters and low-stock results |
+| #15 | FR-PUR-001/002, BR-004/009/010, SRS §§13.1/14.3; TC-PUR-01/02 | `modules/suppliers/`, migration 004, `Suppliers.jsx`; supplier API/UI tests verify validated contacts, persistence, permissions, filtering, editing/deactivation and stable purchase snapshots |
+| #16 | FR-PUR-003–009, BR-004/005/006/009/010/011/012, NFR-004/009, SRS §§13.1/14.3; TC-PUR-03/04/05/07/08/09 | `modules/purchases/`, migration 005, `Purchase`/`PurchaseReceipt`, `Purchases.jsx`; purchase API/UI tests verify orders, partial/full receipts, history, exact totals, over-receipt rejection, permissions, idempotency and atomic rollback |
 
 Low stock includes equality: `available quantity <= minimum stock` (BR-003, FR-INV-004), implemented under #19. Referenced products/suppliers are deactivated instead of deleting history (FR-PROD-006, BR-009).
 

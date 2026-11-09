@@ -76,3 +76,25 @@ export const catalogue = {
   deactivateProduct: (id) => call(`/products/${id}`, { method: 'DELETE' }),
   deleteCategory: (id) => call(`/categories/${id}`, { method: 'DELETE' }),
 };
+
+export const suppliersApi = {
+  list: async (filters = {}) => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(filters)) if (value) params.set(key, value);
+    return (await call(`/suppliers${params.size ? `?${params}` : ''}`)).suppliers;
+  },
+  save: (id, body) => call(`/suppliers${id ? `/${id}` : ''}`, { method: id ? 'PATCH' : 'POST', body }),
+  deactivate: (id) => call(`/suppliers/${id}`, { method: 'DELETE' }),
+};
+
+export const purchasesApi = {
+  list: async (filters = {}) => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(filters)) if (value) params.set(key, value);
+    return (await call(`/purchases${params.size ? `?${params}` : ''}`)).purchases;
+  },
+  get: (id) => call(`/purchases/${id}`),
+  create: (body, requestId) => call('/purchases', { method: 'POST', body, headers: { 'Idempotency-Key': requestId } }),
+  update: (id, body) => call(`/purchases/${id}`, { method: 'PATCH', body }),
+  receive: (id, body, requestId) => call(`/purchases/${id}/receipts`, { method: 'POST', body, headers: { 'Idempotency-Key': requestId } }),
+};

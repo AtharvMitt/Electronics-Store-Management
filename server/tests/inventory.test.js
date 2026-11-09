@@ -183,11 +183,15 @@ test('caller cannot catch an audit failure and commit the stock change alone', a
   assert.equal(await stock(p), 5); assert.equal(await InventoryTransaction.countDocuments({ productId: p._id }), 0);
 });
 
-test('future purchase/sale callers use existing source/actor references and the same atomic stock rules', async () => {
+test('purchase/sale callers use valid source/actor references and the same atomic stock rules', async () => {
   const p = await fixture();
   const purchaseId = new mongoose.Types.ObjectId(), saleId = new mongoose.Types.ObjectId();
-  // The sale source must meet the new sales collection validator; purchase remains a future source fixture.
-  await mongoose.connection.db.collection('purchases').insertOne({ _id: purchaseId });
+  // Both source fixtures satisfy the feature migrations; no validator bypass.
+  const supplier = await mongoose.connection.db.collection('suppliers').insertOne({ name: 'Stock source supplier', status: 'ACTIVE', createdAt: new Date(), updatedAt: new Date() });
+  const purchaseFixture = (sourceId) => ({ _id: sourceId, orderNumber: `PO-${sourceId}`, requestId: `stock-fixture-${sourceId}`, requestFingerprint: 'a'.repeat(64), supplierId: supplier.insertedId,
+    supplierSnapshot: { name: 'Stock source supplier' }, orderDate: new Date(), status: 'ORDERED', createdBy: actors.PURCHASE._id, totalMinor: 0,
+    items: [{ _id: new mongoose.Types.ObjectId(), productId: p._id, sku: p.sku, name: p.name, orderedQty: 10, receivedQty: 0, unitCostMinor: 0, lineTotalMinor: 0 }], createdAt: new Date(), updatedAt: new Date() });
+  await mongoose.connection.db.collection('purchases').insertOne(purchaseFixture(purchaseId));
   await mongoose.connection.db.collection('sales').insertOne({ _id: saleId, transactionNumber: `SALE-${saleId}`, requestId: `stock-fixture-${saleId}`, saleDate: new Date(),
     createdBy: actors.SALES._id, totalMinor: 0, items: [{ productId: p._id, sku: p.sku, name: p.name, quantity: 1, unitPriceMinor: 0, lineTotalMinor: 0 }],
     createdAt: new Date(), updatedAt: new Date() });
@@ -202,7 +206,7 @@ test('future purchase/sale callers use existing source/actor references and the 
   assert.equal(await InventoryTransaction.countDocuments({ productId: p._id }), 2);
   const rolledBackSource = new mongoose.Types.ObjectId();
   await assert.rejects(mongoose.connection.transaction(async (session) => {
-    await mongoose.connection.db.collection('purchases').insertOne({ _id: rolledBackSource }, { session });
+    await mongoose.connection.db.collection('purchases').insertOne(purchaseFixture(rolledBackSource), { session });
     await applyStockChange(change(p, 3, { sourceType: 'PURCHASE', sourceId: rolledBackSource, createdBy: actors.PURCHASE._id }), { session });
     throw new Error('Source finalization failed');
   }), /Source finalization failed/);

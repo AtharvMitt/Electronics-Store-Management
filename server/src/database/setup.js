@@ -1,10 +1,12 @@
-import { definitions, salesDefinitions, sessionDefinitions } from './definitions.js';
+import { definitions, salesDefinitions, sessionDefinitions, supplierDefinitions, purchaseDefinitions } from './definitions.js';
 
 // Applied in order. Never edit or remove an applied migration; add a new one instead.
 const migrations = [
   { id: '001-initial-inventory-foundation', collections: definitions },
   { id: '002-authentication-sessions', collections: sessionDefinitions },
   { id: '003-sales-records', collections: salesDefinitions },
+  { id: '004-suppliers', collections: supplierDefinitions },
+  { id: '005-purchase-orders-receipts', collections: purchaseDefinitions },
 ];
 
 async function applyCollections(db, collections) {

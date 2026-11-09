@@ -5,7 +5,7 @@ const control = 'rounded border border-forest/25 bg-white px-3 py-2';
 const money = (minor) => `${Math.floor(minor / 100)}.${String(minor % 100).padStart(2, '0')}`;
 const newRequestId = () => globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
 
-export function Sales({ user, api = salesApi, inventory = inventoryApi, onInventoryChange = () => {} }) {
+export function Sales({ user, api = salesApi, inventory = inventoryApi, onInventoryChange = () => {}, refreshKey = 0 }) {
   const [stock, setStock] = useState([]);
   const [sales, setSales] = useState(null);
   const [productId, setProductId] = useState('');
@@ -26,7 +26,7 @@ export function Sales({ user, api = salesApi, inventory = inventoryApi, onInvent
     let active = true;
     Promise.all([inventory.list(), api.list()]).then(([nextStock, nextSales]) => { if (active) { setStock(nextStock); setSales(nextSales); } }).catch((failure) => { if (active) setError(failure.message); });
     return () => { active = false; };
-  }, [api, inventory]);
+  }, [api, inventory, refreshKey]);
   function addItem(event) {
     event.preventDefault(); setError('');
     const product = stock.find((row) => row.productId === productId);
