@@ -158,3 +158,23 @@ Environment: Windows 11; Node.js 24.13.0; MongoDB Community Server 8.3.11 replic
 Browser check on the integrated app (seeded development data): Purchase staff saw supplier and purchase actions but view-only products, inventory and sales; receiving the remaining 3 units of a partially received order changed it to RECEIVED and updated the inventory and stock tables from 7 to 10 without a reload. Sales staff then saw "10 available", recorded a sale of 2 (total 4998.00), and the inventory table, sale product list and sales history updated to 8 immediately.
 
 No defects were found in the integrated workflow, so no defect issues were opened.
+
+## Issue #26 — service-level stock consistency and rollback
+
+Environment: Arch Linux; Node.js 26.12.1; MongoDB 8.3.9 replica set on loopback port 27018. The new suite creates/drops only its own uniquely named `techzone_test_consistency_*` database. Application data and development seeds are unchanged.
+
+| Check | Observed result |
+| --- | --- |
+| `node --test server/tests/stock-consistency.test.js`, baseline embedded-version setting | 10 passed, 2 failed; competing-sale and deterministic transient-conflict regressions reproduced the sale retry defect |
+| Same focused command after the fix | 12 passed, zero failures/skips |
+| `npm run lint` | Passed |
+| `npm test` | 104 backend + 20 frontend tests passed; zero failures/skips, including the merged #21 end-to-end and #25 permission suites |
+| `npm run build` and `git diff --check` | Passed |
+
+The 12 new tests call existing purchase, receipt, sale and stock services directly with real schema/indexes/transactions. They verify targeted increments/decrements with an untouched control product, no stock change at ordering, source IDs and actors, invalid quantity/source/availability rejection, concurrent and later idempotent replays, conflicting keys, and competing multi-line receipts/sales. Rejection and rollback checks compare complete raw snapshots of products, suppliers, inventory, inventory history, orders, receipts and sales, including reference versions.
+
+Second-line purchase/sale audit failures are injected only after observing both in-flight stock changes and the first audit event. Receipt-persistence failure is injected after both stock/history writes. Each failure leaves the full persisted snapshot unchanged; retry succeeds without residual records or duplicate stock. A deterministic TransientTransactionError injected after sale writes proves retry cleanup and one final committed sale/history set.
+
+**Defect found and fixed under #26:** strict embedded sale items had an implicit version key. Mongoose transaction reset tried to restore nonexistent `__v`, and a subsequent abort masked the original error as `Cannot call abortTransaction twice`. Disabling embedded sale-item versioning fixes the retry path without changing stored schemas, migrations or business stock guards. Both regressions were run with the original setting and failed, then passed with the correction. Details and acceptance mapping are in `docs/stock-consistency.md`.
+
+GitHub CLI is read-only for this delivery; no defect issue, PR or board change was submitted through another account. Remote CI will run when the manual PR is opened. Human review and merge remain pending; passing local checks does not mark the story Done.
