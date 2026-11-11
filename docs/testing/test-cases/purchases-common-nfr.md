@@ -1,6 +1,6 @@
 # Atharv — purchases common nfr test cases
 
-Updated 11 November 2026 against the implementation. Prepared centrally for the requested direct-main QA delivery; owner names identify review responsibility, not authorship or completed teammate review.
+Updated 11 November 2026 against the implementation. Prepared centrally for QA delivery. After GitHub rejected direct main publication, Atharv authorized a QA branch and PR. Owner names identify review responsibility, not authorship or completed teammate review.
 
 | TC ID | Requirement | What we test now | Change from original plan | Automated test / manual steps | Result |
 | --- | --- | --- | --- | --- | --- |
@@ -25,5 +25,5 @@ Updated 11 November 2026 against the implementation. Prepared centrally for the 
 | TC-NFR-05 | NFR-006 | Real API/service/component suites execute without skipped integration tests. | Node test runner, Supertest and jsdom replace pytest; unique disposable test databases. | evidence/server-results.json; evidence/client-results.json | PASS (suite execution) |
 | TC-NFR-06 | NFR-007 | Run integrated desktop/mobile-width flow in Chromium; Firefox/Edge checks pending. | Headless browser automation is recorded separately from human checks; other required browsers unavailable. | scripts/qa-browser.mjs; follow manual matrix in system-validation-report.md on Firefox and Edge. | PARTIAL (browser matrix pending) |
 | TC-NFR-07 | NFR-008 | Load 10000 products, 100000 audit records; search, report and adjust stock. | Synthetic schema-validated fixture; single local client, 5-second usability budget per operation. | server/tests/non-functional.test.js; diagnostics in evidence/server-results.json | PASS (automated) |
-| TC-NFR-10 | NFR-011 | ESLint, build and whitespace checks; inspect Git workflow. | ESLint/GitHub Actions replace SonarQube/Jenkins; user requested direct main push, so this delivery has no peer PR review. | docs/testing/evidence/quality-checks.json; teammate review still required. | PARTIAL (peer review pending) |
+| TC-NFR-10 | NFR-011 | ESLint, build and whitespace checks; inspect Git workflow. | ESLint/GitHub Actions replace SonarQube/Jenkins; main protection requires the authorized QA PR; peer review is pending. | docs/testing/evidence/quality-checks.json; teammate review still required. | PARTIAL (peer review pending) |
 | TC-NFR-11 | NFR-012 | Inventory events preserve responsible actor, source, reason and timestamp. | Immutable inventoryTransactions collection; adjustment audit tests check Date values. | server/tests/inventory.test.js; server/tests/end-to-end.test.js | PASS (automated) |

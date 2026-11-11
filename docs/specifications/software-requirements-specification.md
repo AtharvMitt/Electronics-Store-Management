@@ -142,7 +142,7 @@ Order states are DRAFT, ORDERED, PARTIAL, RECEIVED and CANCELLED. Unreceived ord
 | NFR-008 | >=10000 products and 100000 transaction/item records without redesign. Synthetic 100000 valid audit records and 10000 products tested; three representative operations have a local 5-second usability budget, separate from NFR-001. |
 | NFR-009 | Atomic purchase/sale/inventory updates. Forced later-line and receipt-persistence failures leave no partial changes. |
 | NFR-010 | Messages identify corrective field/operation. Representative React and API-client error assertions. |
-| NFR-011 | Naming/modularity/static analysis/Git review practices. ESLint/build checks pass; direct-main delivery is user-authorized, so peer review remains pending. |
+| NFR-011 | Naming/modularity/static analysis/Git review practices. ESLint/build checks pass; QA PR publication was authorized after main protection rejected direct push; peer review remains pending. |
 | NFR-012 | Inventory events retain responsible actor and timestamp. Database/service audit assertions. |
 
 ## 8. Security requirements

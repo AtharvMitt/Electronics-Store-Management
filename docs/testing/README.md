@@ -32,7 +32,7 @@ The root PDFs remain the original submissions. These revision-2 documents descri
 | Sprint 2 two-minute video | Atharv | He will record and upload later |
 | Final report refresh after any code changes | Annamalai, coordinated by Atharv | Rerun coverage/browser/review and regenerate reports; preserve tested source identity |
 
-The direct-main commit is explicitly requested by Atharv and uses his Git identity. It replaces branch/PR delivery for this update only; it does not create a peer review record.
+Atharv initially requested a direct-main push using his identity. GitHub rejected it with GH006 because main requires a pull request; Atharv then authorized a QA branch and PR as AtharvMitt. The source was tested on local main before branching. Publication uses the normal protected-branch PR route; peer review and merge remain pending.
 
 ## Reproduce and refresh
 

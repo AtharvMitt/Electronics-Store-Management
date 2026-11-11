@@ -1,6 +1,6 @@
 # Avaneesh — inventory sales reports test cases
 
-Updated 11 November 2026 against the implementation. Prepared centrally for the requested direct-main QA delivery; owner names identify review responsibility, not authorship or completed teammate review.
+Updated 11 November 2026 against the implementation. Prepared centrally for QA delivery. After GitHub rejected direct main publication, Atharv authorized a QA branch and PR. Owner names identify review responsibility, not authorship or completed teammate review.
 
 | TC ID | Requirement | What we test now | Change from original plan | Automated test / manual steps | Result |
 | --- | --- | --- | --- | --- | --- |
