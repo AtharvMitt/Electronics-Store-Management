@@ -1,0 +1,943 @@
+{
+  "tests": [
+    {
+      "name": "TC-AUTH-01, TC-AUTH-04: API client sends login JSON and accepts an empty logout response",
+      "file": "/home/atharv/Documents/PES/SE/Mini_Project/Main_Repo/Electronics-Store-Management/client/tests/api.test.js",
+      "line": 7,
+      "status": "PASS",
+      "durationMs": 39.21536
+    },
+    {
+      "name": "TC-COM-02: API client preserves actionable errors and handles malformed error bodies",
+      "file": "/home/atharv/Documents/PES/SE/Mini_Project/Main_Repo/Electronics-Store-Management/client/tests/api.test.js",
+      "line": 21,
+      "status": "PASS",
+      "durationMs": 1.895621
+    },
+    {
+      "name": "TC-SEC-01: only an unauthenticated response is treated as a signed-out session",
+      "file": "/home/atharv/Documents/PES/SE/Mini_Project/Main_Repo/Electronics-Store-Management/client/tests/api.test.js",
+      "line": 29,
+      "status": "PASS",
+      "durationMs": 1.022126
+    },
+    {
+      "name": "TC-NFR-03, TC-PUR-09: filters are escaped and receipt retries keep the supplied key",
+      "file": "/home/atharv/Documents/PES/SE/Mini_Project/Main_Repo/Electronics-Store-Management/client/tests/api.test.js",
+      "line": 40,
+      "status": "PASS",
+      "durationMs": 2.78419
+    },
+    {
+      "name": "inventory search, category/low-stock filters, warnings and clear control use stored rows",
+      "file": "/home/atharv/Documents/PES/SE/Mini_Project/Main_Repo/Electronics-Store-Management/client/tests/inventory-sales-reports-ui.test.js",
+      "line": 35,
+      "status": "PASS",
+      "durationMs": 304.613122
+    },
+    {
+      "name": "sale form retries a committed request with the same idempotency key",
+      "file": "/home/atharv/Documents/PES/SE/Mini_Project/Main_Repo/Electronics-Store-Management/client/tests/inventory-sales-reports-ui.test.js",
+      "line": 53,
+      "status": "PASS",
+      "durationMs": 51.278954
+    },
+    {
+      "name": "sales and inventory report filters, clearing, low-stock report and empty states are interactive",
+      "file": "/home/atharv/Documents/PES/SE/Mini_Project/Main_Repo/Electronics-Store-Management/client/tests/inventory-sales-reports-ui.test.js",
+      "line": 80,
+      "status": "PASS",
+      "durationMs": 42.070254
+    },
+    {
+      "name": "authorized signed adjustment targets the selected product and survives component reload",
+      "file": "/home/atharv/Documents/PES/SE/Mini_Project/Main_Repo/Electronics-Store-Management/client/tests/inventory-ui.test.js",
+      "line": 48,
+      "status": "PASS",
+      "durationMs": 287.205501
+    },
+    {
+      "name": "view-only roles see inventory without an adjustment form",
+      "file": "/home/atharv/Documents/PES/SE/Mini_Project/Main_Repo/Electronics-Store-Management/client/tests/inventory-ui.test.js",
+      "line": 71,
+      "status": "PASS",
+      "durationMs": 5.777959
+    },
+    {
+      "name": "invalid quantity is rejected locally and insufficient stock error retains entered data",
+      "file": "/home/atharv/Documents/PES/SE/Mini_Project/Main_Repo/Electronics-Store-Management/client/tests/inventory-ui.test.js",
+      "line": 79,
+      "status": "PASS",
+      "durationMs": 32.349763
+    },
+    {
+      "name": "successful write with failed refresh says saved and supports read retry without duplicate adjustment",
+      "file": "/home/atharv/Documents/PES/SE/Mini_Project/Main_Repo/Electronics-Store-Management/client/tests/inventory-ui.test.js",
+      "line": 92,
+      "status": "PASS",
+      "durationMs": 33.712152
+    },
+    {
+      "name": "create forms submit selected category and validated product values, then reload",
+      "file": "/home/atharv/Documents/PES/SE/Mini_Project/Main_Repo/Electronics-Store-Management/client/tests/products-ui.test.js",
+      "line": 40,
+      "status": "PASS",
+      "durationMs": 256.628623
+    },
+    {
+      "name": "catalogue renders persisted values, hides restricted actions, and refreshes",
+      "file": "/home/atharv/Documents/PES/SE/Mini_Project/Main_Repo/Electronics-Store-Management/client/tests/products-ui.test.js",
+      "line": 63,
+      "status": "PASS",
+      "durationMs": 24.828238
+    },
+    {
+      "name": "edit submits exact minor units and refreshes; category editing and deactivation are wired",
+      "file": "/home/atharv/Documents/PES/SE/Mini_Project/Main_Repo/Electronics-Store-Management/client/tests/products-ui.test.js",
+      "line": 75,
+      "status": "PASS",
+      "durationMs": 41.005408
+    },
+    {
+      "name": "failed category deletion displays useful server feedback and retains catalogue data",
+      "file": "/home/atharv/Documents/PES/SE/Mini_Project/Main_Repo/Electronics-Store-Management/client/tests/products-ui.test.js",
+      "line": 97,
+      "status": "PASS",
+      "durationMs": 19.976112
+    },
+    {
+      "name": "TC-COM-03: active supplier selection, exact order totals and lost-response receipt retries update stock once",
+      "file": "/home/atharv/Documents/PES/SE/Mini_Project/Main_Repo/Electronics-Store-Management/client/tests/purchases-ui.test.js",
+      "line": 40,
+      "status": "PASS",
+      "durationMs": 366.257949
+    },
+    {
+      "name": "a lost creation response locks the original order and retries its original idempotency key",
+      "file": "/home/atharv/Documents/PES/SE/Mini_Project/Main_Repo/Electronics-Store-Management/client/tests/purchases-ui.test.js",
+      "line": 66,
+      "status": "PASS",
+      "durationMs": 54.379359
+    },
+    {
+      "name": "purchase history filters, clear actions and details remain available to view-only staff",
+      "file": "/home/atharv/Documents/PES/SE/Mini_Project/Main_Repo/Electronics-Store-Management/client/tests/purchases-ui.test.js",
+      "line": 79,
+      "status": "PASS",
+      "durationMs": 38.220712
+    },
+    {
+      "name": "TC-COM-02, TC-NFR-09: over-receipt is rejected locally and a saved receipt with failed refresh never suggests resubmitting",
+      "file": "/home/atharv/Documents/PES/SE/Mini_Project/Main_Repo/Electronics-Store-Management/client/tests/purchases-ui.test.js",
+      "line": 93,
+      "status": "PASS",
+      "durationMs": 66.634449
+    },
+    {
+      "name": "unreceived purchase editing and cancellation preserve exact line costs",
+      "file": "/home/atharv/Documents/PES/SE/Mini_Project/Main_Repo/Electronics-Store-Management/client/tests/purchases-ui.test.js",
+      "line": 109,
+      "status": "PASS",
+      "durationMs": 39.212199
+    },
+    {
+      "name": "supplier changes refresh selectable contacts without clearing purchase history filters",
+      "file": "/home/atharv/Documents/PES/SE/Mini_Project/Main_Repo/Electronics-Store-Management/client/tests/purchases-ui.test.js",
+      "line": 120,
+      "status": "PASS",
+      "durationMs": 22.990942
+    },
+    {
+      "name": "supplier creation/edit/deactivation use stored contacts and notify the purchase selector",
+      "file": "/home/atharv/Documents/PES/SE/Mini_Project/Main_Repo/Electronics-Store-Management/client/tests/suppliers-ui.test.js",
+      "line": 26,
+      "status": "PASS",
+      "durationMs": 265.685883
+    },
+    {
+      "name": "TC-COM-04: supplier filters and empty states work for view-only users without management controls",
+      "file": "/home/atharv/Documents/PES/SE/Mini_Project/Main_Repo/Electronics-Store-Management/client/tests/suppliers-ui.test.js",
+      "line": 44,
+      "status": "PASS",
+      "durationMs": 35.117263
+    },
+    {
+      "name": "a committed supplier write with failed refresh is reported as saved without resubmission",
+      "file": "/home/atharv/Documents/PES/SE/Mini_Project/Main_Repo/Electronics-Store-Management/client/tests/suppliers-ui.test.js",
+      "line": 56,
+      "status": "PASS",
+      "durationMs": 23.759664
+    }
+  ],
+  "summary": {
+    "success": true,
+    "counts": {
+      "tests": 24,
+      "failed": 0,
+      "passed": 24,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0,
+      "topLevel": 24,
+      "suites": 0
+    },
+    "duration_ms": 6028.333033
+  },
+  "coverage": {
+    "workingDirectory": "/home/atharv/Documents/PES/SE/Mini_Project/Main_Repo/Electronics-Store-Management/client",
+    "files": [
+      {
+        "path": "/home/atharv/Documents/PES/SE/Mini_Project/Main_Repo/Electronics-Store-Management/client/src/api.js",
+        "totalLineCount": 100,
+        "totalBranchCount": 34,
+        "totalFunctionCount": 28,
+        "coveredLineCount": 85,
+        "coveredBranchCount": 32,
+        "coveredFunctionCount": 9,
+        "coveredLinePercent": 85,
+        "coveredBranchPercent": 94.11764705882352,
+        "coveredFunctionPercent": 32.142857142857146,
+        "functions": [
+          {
+            "name": "call",
+            "count": 11,
+            "line": 2
+          },
+          {
+            "name": "",
+            "count": 3,
+            "line": 9
+          },
+          {
+            "name": "currentUser",
+            "count": 3,
+            "line": 18
+          },
+          {
+            "name": "list",
+            "count": 4,
+            "line": 28
+          },
+          {
+            "name": "adjust",
+            "count": 0,
+            "line": 34
+          },
+          {
+            "name": "list",
+            "count": 0,
+            "line": 38
+          },
+          {
+            "name": "create",
+            "count": 0,
+            "line": 43
+          },
+          {
+            "name": "sales",
+            "count": 0,
+            "line": 47
+          },
+          {
+            "name": "inventory",
+            "count": 0,
+            "line": 52
+          },
+          {
+            "name": "lowStock",
+            "count": 0,
+            "line": 57
+          },
+          {
+            "name": "login",
+            "count": 1,
+            "line": 64
+          },
+          {
+            "name": "logout",
+            "count": 1,
+            "line": 65
+          },
+          {
+            "name": "listUsers",
+            "count": 0,
+            "line": 66
+          },
+          {
+            "name": "can",
+            "count": 0,
+            "line": 69
+          },
+          {
+            "name": "products",
+            "count": 0,
+            "line": 72
+          },
+          {
+            "name": "categories",
+            "count": 0,
+            "line": 73
+          },
+          {
+            "name": "saveProduct",
+            "count": 0,
+            "line": 74
+          },
+          {
+            "name": "saveCategory",
+            "count": 0,
+            "line": 75
+          },
+          {
+            "name": "deactivateProduct",
+            "count": 0,
+            "line": 76
+          },
+          {
+            "name": "deleteCategory",
+            "count": 0,
+            "line": 77
+          },
+          {
+            "name": "list",
+            "count": 0,
+            "line": 81
+          },
+          {
+            "name": "save",
+            "count": 0,
+            "line": 86
+          },
+          {
+            "name": "deactivate",
+            "count": 0,
+            "line": 87
+          },
+          {
+            "name": "list",
+            "count": 3,
+            "line": 91
+          },
+          {
+            "name": "get",
+            "count": 0,
+            "line": 96
+          },
+          {
+            "name": "create",
+            "count": 1,
+            "line": 97
+          },
+          {
+            "name": "update",
+            "count": 0,
+            "line": 98
+          },
+          {
+            "name": "receive",
+            "count": 2,
+            "line": 99
+          }
+        ],
+        "branches": [
+          {
+            "line": 1,
+            "count": 1
+          },
+          {
+            "line": 2,
+            "count": 11
+          },
+          {
+            "line": 5,
+            "count": 4
+          },
+          {
+            "line": 5,
+            "count": 7
+          },
+          {
+            "line": 6,
+            "count": 4
+          },
+          {
+            "line": 6,
+            "count": 7
+          },
+          {
+            "line": 7,
+            "count": 10
+          },
+          {
+            "line": 8,
+            "count": 1
+          },
+          {
+            "line": 8,
+            "count": 9
+          },
+          {
+            "line": 10,
+            "count": 4
+          },
+          {
+            "line": 11,
+            "count": 1
+          },
+          {
+            "line": 11,
+            "count": 3
+          },
+          {
+            "line": 14,
+            "count": 5
+          },
+          {
+            "line": 9,
+            "count": 3
+          },
+          {
+            "line": 18,
+            "count": 3
+          },
+          {
+            "line": 20,
+            "count": 0
+          },
+          {
+            "line": 22,
+            "count": 1
+          },
+          {
+            "line": 22,
+            "count": 2
+          },
+          {
+            "line": 28,
+            "count": 2
+          },
+          {
+            "line": 30,
+            "count": 4
+          },
+          {
+            "line": 30,
+            "count": 3
+          },
+          {
+            "line": 30,
+            "count": 2
+          },
+          {
+            "line": 30,
+            "count": 1
+          },
+          {
+            "line": 31,
+            "count": 1
+          },
+          {
+            "line": 31,
+            "count": 1
+          },
+          {
+            "line": 32,
+            "count": 1
+          },
+          {
+            "line": 64,
+            "count": 1
+          },
+          {
+            "line": 65,
+            "count": 1
+          },
+          {
+            "line": 91,
+            "count": 1
+          },
+          {
+            "line": 93,
+            "count": 3
+          },
+          {
+            "line": 93,
+            "count": 2
+          },
+          {
+            "line": 94,
+            "count": 0
+          },
+          {
+            "line": 97,
+            "count": 1
+          },
+          {
+            "line": 99,
+            "count": 2
+          }
+        ],
+        "lines": [
+          {
+            "line": 1,
+            "count": 1
+          },
+          {
+            "line": 2,
+            "count": 11
+          },
+          {
+            "line": 3,
+            "count": 11
+          },
+          {
+            "line": 4,
+            "count": 11
+          },
+          {
+            "line": 5,
+            "count": 11
+          },
+          {
+            "line": 6,
+            "count": 11
+          },
+          {
+            "line": 7,
+            "count": 11
+          },
+          {
+            "line": 8,
+            "count": 11
+          },
+          {
+            "line": 9,
+            "count": 9
+          },
+          {
+            "line": 10,
+            "count": 11
+          },
+          {
+            "line": 11,
+            "count": 4
+          },
+          {
+            "line": 12,
+            "count": 4
+          },
+          {
+            "line": 13,
+            "count": 4
+          },
+          {
+            "line": 14,
+            "count": 4
+          },
+          {
+            "line": 15,
+            "count": 5
+          },
+          {
+            "line": 16,
+            "count": 11
+          },
+          {
+            "line": 17,
+            "count": 1
+          },
+          {
+            "line": 18,
+            "count": 1
+          },
+          {
+            "line": 19,
+            "count": 3
+          },
+          {
+            "line": 20,
+            "count": 3
+          },
+          {
+            "line": 21,
+            "count": 3
+          },
+          {
+            "line": 22,
+            "count": 3
+          },
+          {
+            "line": 23,
+            "count": 2
+          },
+          {
+            "line": 24,
+            "count": 2
+          },
+          {
+            "line": 25,
+            "count": 3
+          },
+          {
+            "line": 26,
+            "count": 1
+          },
+          {
+            "line": 27,
+            "count": 1
+          },
+          {
+            "line": 28,
+            "count": 1
+          },
+          {
+            "line": 29,
+            "count": 2
+          },
+          {
+            "line": 30,
+            "count": 2
+          },
+          {
+            "line": 31,
+            "count": 2
+          },
+          {
+            "line": 32,
+            "count": 2
+          },
+          {
+            "line": 33,
+            "count": 1
+          },
+          {
+            "line": 34,
+            "count": 1
+          },
+          {
+            "line": 35,
+            "count": 1
+          },
+          {
+            "line": 36,
+            "count": 1
+          },
+          {
+            "line": 37,
+            "count": 1
+          },
+          {
+            "line": 38,
+            "count": 1
+          },
+          {
+            "line": 39,
+            "count": 0
+          },
+          {
+            "line": 40,
+            "count": 0
+          },
+          {
+            "line": 41,
+            "count": 0
+          },
+          {
+            "line": 42,
+            "count": 1
+          },
+          {
+            "line": 43,
+            "count": 1
+          },
+          {
+            "line": 44,
+            "count": 1
+          },
+          {
+            "line": 45,
+            "count": 1
+          },
+          {
+            "line": 46,
+            "count": 1
+          },
+          {
+            "line": 47,
+            "count": 1
+          },
+          {
+            "line": 48,
+            "count": 0
+          },
+          {
+            "line": 49,
+            "count": 0
+          },
+          {
+            "line": 50,
+            "count": 0
+          },
+          {
+            "line": 51,
+            "count": 1
+          },
+          {
+            "line": 52,
+            "count": 1
+          },
+          {
+            "line": 53,
+            "count": 0
+          },
+          {
+            "line": 54,
+            "count": 0
+          },
+          {
+            "line": 55,
+            "count": 0
+          },
+          {
+            "line": 56,
+            "count": 1
+          },
+          {
+            "line": 57,
+            "count": 1
+          },
+          {
+            "line": 58,
+            "count": 0
+          },
+          {
+            "line": 59,
+            "count": 0
+          },
+          {
+            "line": 60,
+            "count": 0
+          },
+          {
+            "line": 61,
+            "count": 1
+          },
+          {
+            "line": 62,
+            "count": 1
+          },
+          {
+            "line": 63,
+            "count": 1
+          },
+          {
+            "line": 64,
+            "count": 1
+          },
+          {
+            "line": 65,
+            "count": 1
+          },
+          {
+            "line": 66,
+            "count": 1
+          },
+          {
+            "line": 67,
+            "count": 1
+          },
+          {
+            "line": 68,
+            "count": 1
+          },
+          {
+            "line": 69,
+            "count": 1
+          },
+          {
+            "line": 70,
+            "count": 1
+          },
+          {
+            "line": 71,
+            "count": 1
+          },
+          {
+            "line": 72,
+            "count": 1
+          },
+          {
+            "line": 73,
+            "count": 1
+          },
+          {
+            "line": 74,
+            "count": 1
+          },
+          {
+            "line": 75,
+            "count": 1
+          },
+          {
+            "line": 76,
+            "count": 1
+          },
+          {
+            "line": 77,
+            "count": 1
+          },
+          {
+            "line": 78,
+            "count": 1
+          },
+          {
+            "line": 79,
+            "count": 1
+          },
+          {
+            "line": 80,
+            "count": 1
+          },
+          {
+            "line": 81,
+            "count": 1
+          },
+          {
+            "line": 82,
+            "count": 0
+          },
+          {
+            "line": 83,
+            "count": 0
+          },
+          {
+            "line": 84,
+            "count": 0
+          },
+          {
+            "line": 85,
+            "count": 1
+          },
+          {
+            "line": 86,
+            "count": 1
+          },
+          {
+            "line": 87,
+            "count": 1
+          },
+          {
+            "line": 88,
+            "count": 1
+          },
+          {
+            "line": 89,
+            "count": 1
+          },
+          {
+            "line": 90,
+            "count": 1
+          },
+          {
+            "line": 91,
+            "count": 1
+          },
+          {
+            "line": 92,
+            "count": 1
+          },
+          {
+            "line": 93,
+            "count": 1
+          },
+          {
+            "line": 94,
+            "count": 1
+          },
+          {
+            "line": 95,
+            "count": 1
+          },
+          {
+            "line": 96,
+            "count": 1
+          },
+          {
+            "line": 97,
+            "count": 1
+          },
+          {
+            "line": 98,
+            "count": 1
+          },
+          {
+            "line": 99,
+            "count": 1
+          },
+          {
+            "line": 100,
+            "count": 1
+          }
+        ]
+      }
+    ],
+    "totals": {
+      "totalLineCount": 100,
+      "totalBranchCount": 34,
+      "totalFunctionCount": 28,
+      "coveredLineCount": 85,
+      "coveredBranchCount": 32,
+      "coveredFunctionCount": 9,
+      "coveredLinePercent": 85,
+      "coveredBranchPercent": 94.11764705882352,
+      "coveredFunctionPercent": 32.142857142857146
+    },
+    "thresholds": {
+      "line": 0,
+      "branch": 0,
+      "function": 0
+    }
+  },
+  "diagnostics": [
+    {
+      "nesting": 0,
+      "message": "tests 24",
+      "level": "info"
+    },
+    {
+      "nesting": 0,
+      "message": "suites 0",
+      "level": "info"
+    },
+    {
+      "nesting": 0,
+      "message": "pass 24",
+      "level": "info"
+    },
+    {
+      "nesting": 0,
+      "message": "fail 0",
+      "level": "info"
+    },
+    {
+      "nesting": 0,
+      "message": "cancelled 0",
+      "level": "info"
+    },
+    {
+      "nesting": 0,
+      "message": "skipped 0",
+      "level": "info"
+    },
+    {
+      "nesting": 0,
+      "message": "todo 0",
+      "level": "info"
+    },
+    {
+      "nesting": 0,
+      "message": "duration_ms 6028.333033",
+      "level": "info"
+    }
+  ]
+}
