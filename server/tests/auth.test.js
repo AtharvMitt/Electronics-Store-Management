@@ -51,14 +51,14 @@ test('sessions store only a hash of the token (SEC-002)', async () => {
   assert.ok(sessions.every(({ tokenHash }) => tokenHash !== token && /^[a-f0-9]{64}$/.test(tokenHash)));
 });
 
-test('TC-AUTH-02: wrong passwords and unknown emails get the same rejection (FR-AUTH-002, SEC-008)', async () => {
+test('TC-AUTH-02, TC-SEC-08: wrong passwords and unknown emails get the same rejection (FR-AUTH-002, SEC-008)', async () => {
   const wrong = await login(request(app), 'sales@techzone.example.test', 'not-the-password').expect(401, LOGIN_FAILED);
   const unknown = await login(request(app), 'nobody@techzone.example.test').expect(401, LOGIN_FAILED);
   assert.equal(wrong.headers['set-cookie'], undefined);
   assert.equal(unknown.headers['set-cookie'], undefined);
 });
 
-test('TC-AUTH-03: inactive accounts cannot log in (FR-AUTH-003, SEC-009)', async () => {
+test('TC-AUTH-03, TC-SEC-09: inactive accounts cannot log in (FR-AUTH-003, SEC-009)', async () => {
   const response = await login(request(app), 'inactive@techzone.example.test').expect(401, LOGIN_FAILED);
   assert.equal(response.headers['set-cookie'], undefined);
 });
@@ -69,7 +69,7 @@ test('missing or malformed credentials are rejected before any lookup', async ()
   }
 });
 
-test('protected endpoints require a valid session (SEC-001)', async () => {
+test('TC-SEC-01: protected endpoints require a valid session (SEC-001)', async () => {
   const unauthorized = { error: { message: 'Please log in to continue.' } };
   await request(app).get('/api/auth/me').expect(401, unauthorized);
   await request(app).get('/api/auth/me').set('Cookie', 'tz_session=forged-token').expect(401, unauthorized);

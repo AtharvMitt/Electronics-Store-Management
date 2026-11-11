@@ -36,3 +36,9 @@ Shared models belong to the schema story. Feature owners extend these through re
 Reuse installed MongoDB binaries with an isolated loopback project instance on 27018, storing data in ignored `.local/mongodb/`. Use a replica set for future atomic purchase/sale/inventory/history updates (NFR-009). Leave system services and existing data untouched.
 
 MongoDB validators/indexes enforce document values and key uniqueness. Application services enforce cross-collection references and historical-record preservation (FR-COM-005, BR-009). Issue #24's relational terminology must be explicitly adapted to this decision.
+
+## 2026-11-11 — Part 3 implementation documentation and QA
+
+Revision-2 [SRS](specifications/software-requirements-specification.md), [SAD](specifications/software-architecture-design.md) and [Test Plan](specifications/software-test-plan.md), with PDF companions, now describe the delivered system. The original PDFs remain historical submissions. [QA index](testing/README.md) links four reports and owner case mappings. All 65 original unique test IDs remain, with the omitted TC-PUR-06 added (66 total).
+
+Unmet original scope is explicit: admin account mutations, general inventory-history filters and dedicated aggregate purchase reporting. Production-only controls/uptime and remaining browser checks are not claimed complete. The owner requested an AtharvMitt direct-main push for this delivery; no teammate review is inferred. The original 6 November Part 3 deadline was missed; catch-up target is 12 November EOD IST. Atharv confirmed Sprint 1 is recorded and he will upload it later; he will also record/upload Sprint 2 later.

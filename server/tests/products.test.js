@@ -39,7 +39,7 @@ after(async () => {
   await mongoose.disconnect();
 });
 
-test('TC-PROD-01/03/04: authorized category/product create, read, edit and persistence', async () => {
+test('TC-PROD-01, TC-PROD-03, TC-PROD-04: authorized category/product create, read, edit and persistence', async () => {
   const c = (await call('post', '/categories', 'INVENTORY').send({ name: '  Audio  ' }).expect(201)).body.category;
   assert.equal(c.name, 'Audio');
   await call('patch', `/categories/${c._id}`, 'INVENTORY').send({ name: 'Sound' }).expect(200);
@@ -71,7 +71,7 @@ test('all catalogue endpoints require authentication and enforce each role permi
   }
 });
 
-test('required fields, types, lengths, numeric boundaries and unknown fields are rejected', async () => {
+test('TC-COM-01, TC-SEC-06: required fields, types, lengths, numeric boundaries and unknown fields are rejected', async () => {
   for (const field of Object.keys(product())) {
     const input = product(); delete input[field];
     await call('post', '/products').send(input).expect(400);

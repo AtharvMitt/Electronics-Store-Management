@@ -19,7 +19,8 @@
     "db:start": "node scripts/mongo-dev.mjs start",
     "db:stop": "node scripts/mongo-dev.mjs stop",
     "db:setup": "npm run db:setup -w server",
-    "db:seed": "npm run db:seed -w server"
+    "db:seed": "npm run db:seed -w server",
+    "test:coverage": "node scripts/test-coverage.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",

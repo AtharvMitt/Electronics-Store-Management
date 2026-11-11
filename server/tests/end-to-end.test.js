@@ -139,7 +139,7 @@ test('9. the manager\'s reports match the stored sale and stock', async () => {
   assert.equal(history.receipts.length, 2);
 });
 
-test('10. every stock change is traceable to its source and actor, and the history adds up to current stock', async () => {
+test('TC-INV-05: 10. every stock change is traceable to its source and actor, and the history adds up to current stock', async () => {
   const current = await stock();
   for (const product of [state.cable, state.adapter]) {
     const events = await InventoryTransaction.find({ productId: product._id }).lean();
