@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
 import os from 'node:os';
 import { createHash } from 'node:crypto';
@@ -34,7 +34,8 @@ for (const workspace of ['server', 'client']) {
     '--test', '--test-concurrency=1', '--experimental-test-coverage',
     '--test-coverage-include=src/**',
     '--test-reporter=spec', '--test-reporter-destination=stdout',
-    `--test-reporter=${path.join(root, 'scripts/coverage-reporter.mjs')}`,
+    // A file:// URL, because Windows paths like C:\... are not valid module specifiers.
+    `--test-reporter=${pathToFileURL(path.join(root, 'scripts/coverage-reporter.mjs')).href}`,
     `--test-reporter-destination=${path.join(output, `${workspace}-results.json`)}`,
     '--test-reporter=lcov', `--test-reporter-destination=${path.join(output, `${workspace}.lcov`)}`,
   ], { cwd: path.join(root, workspace), env: process.env, stdio: 'inherit' });

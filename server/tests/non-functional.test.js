@@ -63,12 +63,15 @@ test('TC-NFR-07: 10000 products and 100000 audit records retain usable inventory
   assert.equal(await Product.countDocuments(), 10000);
   assert.equal(await InventoryTransaction.countDocuments(), 100000);
   const measurements = [];
+  // Coverage instrumentation slows every call, so a coverage run gets extra headroom.
+  // Normal `npm test` and CI runs still enforce the 5000ms usability budget.
+  const budgetMs = process.env.NODE_V8_COVERAGE ? 15000 : 5000;
   async function measure(operation, run) {
     const start = performance.now();
     await run();
     const durationMs = performance.now() - start;
     measurements.push({ operation, durationMs });
-    assert.ok(durationMs < 5000, `${operation} took ${durationMs}ms; local usability budget is 5000ms`);
+    assert.ok(durationMs < budgetMs, `${operation} took ${durationMs}ms; local usability budget is ${budgetMs}ms`);
   }
   await measure('SKU search', async () => {
     const response = await request(app).get('/api/inventory?search=VOLUME-09999').set('Cookie', cookie).expect(200);
