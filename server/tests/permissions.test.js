@@ -111,7 +111,7 @@ test('TC-SEC-04: client-supplied role data cannot raise permissions (SEC-004)', 
   assert.deepEqual(me.body.user.permissions, PERMISSIONS.SALES);
 });
 
-test('role changes apply on the next request without logging in again', async () => {
+test('TC-AUTH-05: role changes apply on the next request without logging in again', async () => {
   const sales = await User.findOne({ role: 'SALES' });
   await User.updateOne({ _id: sales._id }, { $set: { role: 'MANAGER' } });
   await request(app).get('/api/users').set('Cookie', cookies.SALES).expect(200);

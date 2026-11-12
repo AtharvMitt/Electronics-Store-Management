@@ -1,0 +1,26 @@
+{
+  "executedAt": "2026-11-11T04:01:56.576Z",
+  "checks": [
+    {
+      "tc": "TC-SEC-07",
+      "result": "PASS",
+      "scope": ".env absent from Git index; client source and production assets contain no MongoDB URI, private key marker, or configured database/seed secret value.",
+      "filesInspected": 15,
+      "limitation": "Snapshot inspection only; not a historical secret scan or penetration test."
+    },
+    {
+      "tc": "TC-NFR-04",
+      "result": "PASS",
+      "scope": "Seven server module directories have route boundaries; core services have API/service tests.",
+      "modules": [
+        "auth",
+        "products",
+        "inventory",
+        "suppliers",
+        "purchases",
+        "sales",
+        "reports"
+      ]
+    }
+  ]
+}

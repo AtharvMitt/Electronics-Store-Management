@@ -41,7 +41,7 @@ test('supplier creation/edit/deactivation use stored contacts and notify the pur
   } finally { await act(async () => root.unmount()); }
 });
 
-test('supplier filters and empty states work for view-only users without management controls', async () => {
+test('TC-COM-04: supplier filters and empty states work for view-only users without management controls', async () => {
   const calls = [];
   await mount({ user: { permissions: ['suppliers:view'] }, api: { list: async (filters = {}) => { calls.push(filters); return []; } } });
   try {

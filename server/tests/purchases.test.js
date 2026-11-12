@@ -49,7 +49,7 @@ after(async () => {
   await mongoose.disconnect();
 });
 
-test('TC-PUR-03/05/07: orders preserve exact costs and partial receipts increase only intended stock', async () => {
+test('TC-PUR-03, TC-PUR-05, TC-PUR-06, TC-PUR-07: orders preserve exact costs and partial receipts increase only intended stock', async () => {
   const first = await fixture({ quantity: 2 }), second = await fixture({ quantity: 7 });
   const body = await orderBody(first);
   body.items.push({ productId: String(second._id), orderedQty: 3, unitCostMinor: 101 });
@@ -68,7 +68,7 @@ test('TC-PUR-03/05/07: orders preserve exact costs and partial receipts increase
   await receive(purchase._id, [{ productId: String(first._id), quantity: 1 }]).expect(409);
 });
 
-test('supplier edits/deactivation preserve purchase snapshots and allow existing ordered goods to be received', async () => {
+test('TC-PUR-02, TC-COM-05: supplier edits/deactivation preserve purchase snapshots and allow existing ordered goods to be received', async () => {
   const product = await fixture(), body = await orderBody(product);
   const purchase = (await create(body).expect(201)).body.purchase;
   await call('patch', `/suppliers/${body.supplierId}`).send({ name: 'Renamed business', contactName: 'Ravi' }).expect(200);
@@ -115,7 +115,7 @@ test('purchase and receipt routes enforce every role and unauthenticated request
   await assert.rejects(receivePurchase({ id: purchase._id, body: { items: [{ productId: String(product._id), quantity: 1 }] }, requestId: key(), receivedBy: actors.MANAGER._id }), { status: 403 });
 });
 
-test('TC-PUR-04/08: invalid dates, quantities, prices and references reject without partial records', async () => {
+test('TC-PUR-04, TC-PUR-08: invalid dates, quantities, prices and references reject without partial records', async () => {
   const product = await fixture(), body = await orderBody(product), count = await Purchase.countDocuments();
   for (const bad of [{ ...body, items: [] }, { ...body, supplierId: 'bad' }, { ...body, supplierId: id() }, { ...body, orderDate: '2026-02-30' }, { ...body, status: 'RECEIVED' }, { ...body, totalMinor: 1 }, { ...body, createdBy: actors.ADMIN._id }]) {
     await create(bad).expect(bad.supplierId?.length === 24 && bad.supplierId !== body.supplierId ? 404 : 400);
@@ -137,7 +137,7 @@ test('TC-PUR-04/08: invalid dates, quantities, prices and references reject with
   assert.equal(await stock(product), 5); assert.equal(await PurchaseReceipt.countDocuments({ purchaseId: purchase._id }), 0);
 });
 
-test('concurrent creation and receipt retries persist one order/receipt and one stock change', async () => {
+test('TC-NFR-03: concurrent creation and receipt retries persist one order/receipt and one stock change', async () => {
   const product = await fixture(), body = await orderBody(product), orderKey = key();
   const orders = await Promise.all([create(body, orderKey), create(body, orderKey)]);
   assert.deepEqual(orders.map((response) => response.status), [201, 201]); assert.equal(orders[0].body.purchase._id, orders[1].body.purchase._id);

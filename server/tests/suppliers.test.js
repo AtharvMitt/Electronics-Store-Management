@@ -30,7 +30,7 @@ after(async () => {
   await mongoose.disconnect();
 });
 
-test('TC-PUR-01/02: required supplier fields, persisted contacts, updates and deactivation', async () => {
+test('TC-PUR-01, TC-PUR-02: required supplier fields, persisted contacts, updates and deactivation', async () => {
   const supplier = (await call('post', '').send({ name: '  Circuit Supply  ', contactName: 'Asha', phone: '+91 98765 43210', email: ' SALES@EXAMPLE.TEST ', address: 'Bengaluru' }).expect(201)).body.supplier;
   assert.equal(supplier.name, 'Circuit Supply'); assert.equal(supplier.email, 'sales@example.test');
   assert.equal((await call('get', `/${supplier._id}`, 'SALES').expect(200)).body.supplier.contactName, 'Asha');

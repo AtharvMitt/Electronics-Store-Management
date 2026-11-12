@@ -44,7 +44,7 @@ test('seeding requires an external password and refuses production', async () =>
   assert.equal(await User.countDocuments(), 0);
 });
 
-test('seeds cover roles, account states and stock boundaries without exposing passwords', async () => {
+test('TC-SEC-02: seeds cover roles, account states and stock boundaries without exposing passwords', async () => {
   await seedDevelopment({ password, environment: 'test' });
   seeded = true;
   assert.equal(await User.countDocuments(), 6);

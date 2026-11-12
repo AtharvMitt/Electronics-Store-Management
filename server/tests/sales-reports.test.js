@@ -42,7 +42,7 @@ after(async () => {
   await mongoose.disconnect();
 });
 
-test('TC-SALE-01/02: authorized sale captures details, deducts stored stock and is retrievable', async () => {
+test('TC-SALE-01, TC-SALE-04, TC-SALE-05: authorized sale captures details, deducts stored stock and is retrievable', async () => {
   const p = await fixture({ quantity: 5, price: 1299 });
   const sale = (await postSale('SALES', { items: [{ productId: String(p._id), quantity: 2 }] }, 'repeatable-sale-1').expect(201)).body.sale;
   assert.match(sale.transactionNumber, /^SALE-[A-F0-9]{24}$/);
@@ -64,7 +64,7 @@ test('TC-SALE-01/02: authorized sale captures details, deducts stored stock and 
   await request(app).post('/api/sales').send({ items: [{ productId: String(p._id), quantity: 1 }] }).expect(401);
 });
 
-test('invalid quantities, unknown fields and insufficient stock reject without partial records', async () => {
+test('TC-SALE-02, TC-SALE-03, TC-BR-08: invalid quantities, unknown fields and insufficient stock reject without partial records', async () => {
   const first = await fixture({ quantity: 4 }), second = await fixture({ quantity: 1 });
   const count = await Sale.countDocuments(), eventCount = await InventoryTransaction.countDocuments();
   for (const quantity of [0, -1, 1.5, '2', Number.MAX_SAFE_INTEGER + 1]) {
@@ -116,13 +116,14 @@ test('failed audit writes roll back sale records and every stock deduction', asy
   assert.equal((await call('get', `/sales?transactionNumber=${retry.body.sale.transactionNumber}`, 'SALES').expect(200)).body.sales.length, 1);
 });
 
-test('reports enforce permissions, date filters, empty states and stored transaction totals', async () => {
+test('TC-SALE-06, TC-SALE-07, TC-REP-01, TC-REP-02, TC-REP-04, TC-REP-05: reports enforce permissions, date filters, empty states and stored transaction totals', async () => {
   const p = await fixture({ quantity: 7, price: 101 });
   const today = new Date().toISOString().slice(0, 10);
   const start = new Date(`${today}T00:00:00.000Z`), end = new Date(start); end.setUTCDate(end.getUTCDate() + 1);
   const baseline = await Sale.find({ saleDate: { $gte: start, $lt: end } }).lean();
   const firstSale = (await postSale('SALES', { items: [{ productId: String(p._id), quantity: 2 }] }).expect(201)).body.sale;
-  await postSale('SALES', { items: [{ productId: String(p._id), quantity: 1 }] }).expect(201);
+  const secondSale = (await postSale('SALES', { items: [{ productId: String(p._id), quantity: 1 }] }).expect(201)).body.sale;
+  assert.notEqual(firstSale.transactionNumber, secondSale.transactionNumber);
   const report = (await call('get', `/reports/sales?from=${today}&to=${today}`, 'MANAGER').expect(200)).body;
   const stored = await Sale.find({ saleDate: { $gte: start, $lt: end } }).lean();
   assert.equal(report.transactionCount, stored.length);

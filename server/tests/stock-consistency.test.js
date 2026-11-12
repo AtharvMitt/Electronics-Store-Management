@@ -134,7 +134,7 @@ async function secondAuditFailure(operation, { products, expected, sourceType, s
   assert.deepEqual(observed, { inTransaction: true, quantities: expected, events: 1 }, 'stock writes and the first audit event must really exist inside the failing transaction');
 }
 
-test('purchase rollback undoes two in-flight stock changes, order progress and the first audit event', async () => {
+test('TC-NFR-08: purchase rollback undoes two in-flight stock changes, order progress and the first audit event', async () => {
   const { first, second, untouched } = await fixtures(), purchase = await order([orderLine(first), orderLine(second)]);
   const items = [receivedLine(first, 2), receivedLine(second, 3)], requestId = key();
   await secondAuditFailure(() => receive(purchase, items, requestId), { products: [first, second, untouched], expected: [10, 9, 19], sourceType: 'PURCHASE', sourceId: purchase._id });

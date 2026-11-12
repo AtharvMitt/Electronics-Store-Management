@@ -43,7 +43,7 @@ after(async () => {
   await mongoose.disconnect();
 });
 
-test('TC-INV-02: increase/decrease target the right product and persist with complete audit details', async () => {
+test('TC-INV-02, TC-NFR-11: increase/decrease target the right product and persist with complete audit details', async () => {
   const target = await fixture(), other = await fixture(17);
   const first = await adjust(target._id, { changeQty: 8, reason: '  Counted delivery shelf  ' }).expect(201);
   assert.equal(first.body.inventory.availableQty, 8);
@@ -215,7 +215,7 @@ test('purchase/sale callers use valid source/actor references and the same atomi
   assert.equal(await InventoryTransaction.countDocuments({ productId: p._id }), 2);
 });
 
-test('TC-INV-01/04: stored stock search, category/low-stock filters, clearing and invalid filters', async () => {
+test('TC-INV-01, TC-INV-04, TC-PROD-05, TC-BR-03: stored stock search, category/low-stock filters, clearing and invalid filters', async () => {
   const accessories = await Category.create({ name: 'Accessories' });
   const thresholdCategory = await Category.create({ name: 'Threshold fixtures' });
   const equality = await fixture(2);

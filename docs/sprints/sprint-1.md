@@ -1,5 +1,9 @@
 # Sprint 1 — 28 October–4 November 2026
 
+## Current evidence update — 11 November 2026
+
+Atharv confirms the one-minute Sprint 1 demo is already recorded; he will upload it later. No repository video upload is claimed. See [Part 3 delivery](../testing/README.md) for updated specifications, QA evidence and remaining review/scope checks. Earlier progress entries below are historical, not current GitHub issue/PR status claims.
+
 ## Goal
 
 Deliver the integrated internal-store foundation: authentication/permissions, products/categories, inventory viewing/updates, and low-stock identification. GitHub Project 3 is the current backlog/status source.

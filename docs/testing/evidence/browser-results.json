@@ -1,0 +1,35 @@
+{
+  "executedAt": "2026-11-11T04:00:21.699Z",
+  "checks": [
+    {
+      "name": "TC-AUTH-01: browser login and role navigation",
+      "result": "PASS"
+    },
+    {
+      "name": "TC-PUR-01, TC-COM-03: supplier form saves and refreshes purchase selection",
+      "result": "PASS"
+    },
+    {
+      "name": "TC-PUR-03, TC-PUR-05, TC-PUR-06, TC-PUR-07: order and receipt update visible stock",
+      "result": "PASS"
+    },
+    {
+      "name": "TC-SALE-01, TC-SALE-04, TC-SALE-05: browser sale updates inventory and reports",
+      "result": "PASS"
+    },
+    {
+      "name": "TC-COM-04: browser search empty state and clear",
+      "result": "PASS"
+    },
+    {
+      "name": "TC-NFR-06: Chromium mobile-width navigation smoke (partial browser matrix)",
+      "result": "PASS"
+    },
+    {
+      "name": "TC-AUTH-04: browser logout removes workspace",
+      "result": "PASS"
+    }
+  ],
+  "browser": "156.0.8078.73",
+  "browserBinary": "/usr/bin/chromium"
+}

@@ -1,5 +1,9 @@
 # Sprint 2 — 5–9 November 2026
 
+## Current evidence update — 11 November 2026
+
+Atharv will record and upload the two-minute Sprint 2 demo later. No recorded Sprint 2 video or repository upload is claimed. See [Part 3 delivery](../testing/README.md) for updated specifications, QA evidence and remaining review/scope checks. Earlier progress entries below are historical, not current GitHub issue/PR status claims.
+
 ## Goal and ownership
 
 Deliver supplier management and purchase orders/receipts, integrating the existing authentication, permissions, catalogue and atomic inventory services.

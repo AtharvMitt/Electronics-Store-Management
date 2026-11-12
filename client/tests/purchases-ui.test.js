@@ -37,7 +37,7 @@ async function prepareOrder() {
   await enter(form.querySelector('select'), product._id); await enter(form.querySelectorAll('input')[0], '2'); await enter(form.querySelectorAll('input')[1], '12.99'); await submit(form);
 }
 
-test('active supplier selection, exact order totals and lost-response receipt retries update stock once', async () => {
+test('TC-COM-03: active supplier selection, exact order totals and lost-response receipt retries update stock once', async () => {
   let stored, submitted, actualReceipts = 0, notifications = 0, attempts = 0;
   const keys = [];
   const api = {
@@ -90,7 +90,7 @@ test('purchase history filters, clear actions and details remain available to vi
   } finally { await unmount(); }
 });
 
-test('over-receipt is rejected locally and a saved receipt with failed refresh never suggests resubmitting', async () => {
+test('TC-COM-02, TC-NFR-09: over-receipt is rejected locally and a saved receipt with failed refresh never suggests resubmitting', async () => {
   let saved = 0, notifications = 0; const purchase = base();
   await mount({ user: manager, api: {
     list: async () => { if (saved) throw new Error('Read failed'); return [purchase]; }, get: async () => ({ purchase, receipts: [] }),

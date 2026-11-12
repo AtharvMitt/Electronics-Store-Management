@@ -1,6 +1,6 @@
 # TechZone Electronics Store Management
 
-Team 9's internal store application, built with **MongoDB, Express, React, Node.js, and Tailwind CSS**. The original PDFs at the repository root define the business requirements. [Implementation decisions](docs/decisions.md) record the current technology and two-sprint plan.
+Team 9's internal store application, built with **MongoDB, Express, React, Node.js, and Tailwind CSS**. The [updated SRS, SAD and Test Plan](docs/testing/README.md) describe the delivered system, traceability, QA reports and outstanding scope. The root PDFs remain the original submissions. [Implementation decisions](docs/decisions.md) record the technology and two-sprint changes.
 
 ## Requirements and platform preparation
 
@@ -48,8 +48,7 @@ The helper does not require `sudo` or a systemd service. Keep the project databa
 ```powershell
 git clone https://github.com/AtharvMitt/Electronics-Store-Management.git
 cd Electronics-Store-Management
-# Until PRs merge, select the implementation branch listed in the PR.
-git switch feat/24-mongodb-schema
+git switch main
 npm ci
 Copy-Item .env.example .env
 npm run db:start
@@ -57,13 +56,14 @@ npm run db:setup
 npm run dev
 ```
 
-After the implementation merges, use `main` instead. Open **http://localhost:5173**. Keep this terminal running. In another PowerShell window in the repository:
+Open **http://localhost:5173**. Keep this terminal running. In another PowerShell window in the repository:
 
 ```powershell
 Invoke-RestMethod http://127.0.0.1:5000/api/health
 Invoke-RestMethod http://127.0.0.1:5000/api/ready
 npm run lint
 npm test
+npm run test:coverage
 npm run build
 ```
 
@@ -74,8 +74,7 @@ Both requests should report `ok` / `ready`. Substitute `npm.cmd` where needed. O
 ```bash
 git clone https://github.com/AtharvMitt/Electronics-Store-Management.git
 cd Electronics-Store-Management
-# Until PRs merge, select the implementation branch listed in the PR.
-git switch feat/24-mongodb-schema
+git switch main
 npm ci
 cp .env.example .env
 npm run db:start
@@ -83,7 +82,7 @@ npm run db:setup
 npm run dev
 ```
 
-After the implementation merges, use `main` instead. Open **http://localhost:5173**. The initial page is a development shell; authentication and business screens belong to the other Sprint 1 stories. The API listens on **http://127.0.0.1:5000**. Vite proxies `/api` requests to it. When changing the API port, update the proxy in `client/vite.config.js` too.
+Open **http://localhost:5173**. Log in with a seeded staff account to use the Inventory, Products, Suppliers, Purchases, Sales, Reports and Team pages permitted by its role. The API listens on **http://127.0.0.1:5000**. Vite proxies `/api` requests to it. When changing the API port, update the proxy in `client/vite.config.js` too.
 
 In another terminal:
 
@@ -92,6 +91,7 @@ curl --fail http://127.0.0.1:5000/api/health
 curl --fail http://127.0.0.1:5000/api/ready
 npm run lint
 npm test
+npm run test:coverage
 npm run build
 ```
 
@@ -135,7 +135,7 @@ To use an existing replica set, configure `MONGODB_URI` and `TEST_MONGODB_URI` i
 
 ## Schema and development data
 
-Run `npm run db:setup` after starting MongoDB. To add repeatable development accounts and inventory examples, follow the interactive password instructions in [database setup](docs/database.md), then run `npm run db:seed`. No password is committed. That document describes the shared models, constraints, money units, future references, and migration policy. Authentication endpoints and business workflows remain in their own issues.
+Run `npm run db:setup` after starting MongoDB. To add repeatable development accounts and inventory examples, follow the interactive password instructions in [database setup](docs/database.md), then run `npm run db:seed`. No password is committed. That document describes the shared models, constraints, money units, future references, and migration policy. Login, permissions and business workflows are implemented. The Team page is read-only; account management mutations remain deferred.
 
 Optional seed command in **Windows PowerShell**:
 
@@ -158,7 +158,7 @@ npm run db:seed
 unset SEED_PASSWORD
 ```
 
-Clear the password variable even if seeding fails. The seed creates synthetic `admin`, `inventory`, `purchase`, `sales`, `manager`, and `inactive` accounts at `@techzone.example.test`, with hashed passwords. Repeating it preserves existing passwords and stock. Login endpoints are delivered separately under #6; a successful seed does not mean authentication is implemented.
+Clear the password variable even if seeding fails. The seed creates synthetic `admin`, `inventory`, `purchase`, `sales`, `manager`, and `inactive` accounts at `@techzone.example.test`, with hashed passwords. Repeating it preserves existing passwords and stock. Use the generated credentials on the login page. Inactive users cannot log in.
 
 ## Troubleshooting
 
@@ -175,3 +175,7 @@ Clear the password variable even if seeding fails. The seed creates synthetic `a
 Use an issue branch, focused commits, a linked PR, and another member's review before merging. See [contributing](CONTRIBUTING.md), [Sprint 1](docs/sprints/sprint-1.md), and [traceability](docs/traceability.md).
 
 GitHub Actions runs linting, the frontend build, and API/database tests. See [CI instructions](docs/ci.md) for triggers, local commands, and interpreting results.
+
+## Part 3 testing and demo readiness
+
+See the [QA delivery index](docs/testing/README.md) for revised specifications in Markdown/PDF, all case mappings, four required reports and raw LCOV. Run `npm run test:coverage` with a reachable test replica set. Coverage is reported only for instrumented files; missing JSX/startup coverage and baseline scope gaps are explicit. Atharv will upload the recorded Sprint 1 video and later record/upload Sprint 2.

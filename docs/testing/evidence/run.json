@@ -1,0 +1,16 @@
+{
+  "startedAt": "2026-11-11T04:03:56.393Z",
+  "sourceCommit": "27e6e1586cc3de32a600e0ed01a29cfd327003ac",
+  "workingTree": "M docs/specifications/software-test-plan.md\n?? docs/specifications/software-architecture-design.pdf\n?? docs/specifications/software-requirements-specification.pdf\n?? docs/specifications/software-test-plan.pdf\n?? docs/testing/branch-coverage-report.md\n?? docs/testing/code-coverage-report.md\n?? docs/testing/evidence/\n?? docs/testing/system-validation-report.md\n?? docs/testing/test-cases.md\n?? docs/testing/unit-test-report.md",
+  "node": "v26.12.1",
+  "platform": "Linux 7.2.11-arch1-1 x64",
+  "command": "npm run test:coverage",
+  "note": "Source commit plus working-tree changes at execution; reports are committed afterwards.",
+  "server": {
+    "exitCode": 0
+  },
+  "client": {
+    "exitCode": 0
+  },
+  "finishedAt": "2026-11-11T04:04:32.854Z"
+}
