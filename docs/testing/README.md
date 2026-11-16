@@ -1,45 +1,49 @@
-# Part 3 — Testing & QA delivery
+# Testing and quality assurance
 
-Updated 11 November 2026. Original deadline: 6 November. Catch-up target: **12 November 2026 EOD IST**. This package updates the documents and records actual local QA; it does not claim that pending manual/review/video work is complete.
+Delivery baseline: `82ef87a` (12 November 2026). Documentation status: 16 November 2026.
 
-## Deliverables
+## Specifications and evidence
 
-| Item | Location |
+| Document | Location |
 | --- | --- |
-| Updated IEEE-style SRS | [Markdown](../specifications/software-requirements-specification.md) / [PDF](../specifications/software-requirements-specification.pdf) |
-| Updated SAD | [Markdown](../specifications/software-architecture-design.md) / [PDF](../specifications/software-architecture-design.pdf) |
-| Updated Test Plan, including full case inventory | [Markdown](../specifications/software-test-plan.md) / [PDF](../specifications/software-test-plan.pdf) |
-| Owner case mappings | [auth/security](test-cases/auth-security.md), [products/stock](test-cases/products-stock.md), [inventory/sales/reports](test-cases/inventory-sales-reports.md), [purchases/common/NFR](test-cases/purchases-common-nfr.md) |
-| Joined case table | [66 cases: original 65 plus missing TC-PUR-06](test-cases.md) |
-| Required four reports | [Unit Test](unit-test-report.md), [System Validation](system-validation-report.md), [Code Coverage](code-coverage-report.md), [Branch Coverage](branch-coverage-report.md) |
-| Raw execution and coverage | [Evidence directory](evidence/), [LCOV](evidence/lcov.info), [source manifest](evidence/source-manifest.json) |
+| Software Requirements Specification | [Markdown](../specifications/software-requirements-specification.md) / [PDF](../specifications/software-requirements-specification.pdf) |
+| Software Architecture and Design | [Markdown](../specifications/software-architecture-design.md) / [PDF](../specifications/software-architecture-design.pdf) |
+| Software Test Plan | [Markdown](../specifications/software-test-plan.md) / [PDF](../specifications/software-test-plan.pdf) |
+| Test case catalogue | [66 cases](test-cases.md); [area files](test-cases/) |
+| Test procedures and additional traceability | [Fixtures, expected results, E2E-01–06 and remaining requirements](test-procedures.md) |
+| Required reports | [Unit Test](unit-test-report.md), [System Validation](system-validation-report.md), [Code Coverage](code-coverage-report.md), [Branch Coverage](branch-coverage-report.md) |
+| Recorded execution | [JSON and LCOV](evidence/); [evidence provenance](evidence/README.md) |
+| Original submissions | [Historical PDFs](../archive/README.md) |
 
-The root PDFs remain the original submissions. These revision-2 documents describe the actual delivered system and explicitly retain baseline gaps. No faculty approval, teammate review, production deployment or complete browser matrix is claimed.
+## Recorded results
 
-## Remaining work and assigned owners
+The committed Linux run on 11 November passed **106 backend tests, 24 frontend tests and 7 Chromium browser checks**. There were no failed or skipped test-runner cases. These 130 executable tests are different from the 66 documented acceptance scenarios.
 
-| Work | Owner | Status / next action |
-| --- | --- | --- |
-| Review auth/security mapping and reports | Annamalai; Atharv reviews auth mapping | Prepared centrally; teammate review pending |
-| Review products/stock mapping | Apurv; reviewer Avaneesh | Mapping and automated evidence ready; review pending |
-| Review inventory/sales/reports mapping | Avaneesh; reviewer Apurv | Decide deferred history filters and partial purchase report with owners |
-| Review purchase/common/NFR mapping and revised documents | Atharv; reviewer Annamalai | Documents and local evidence ready; review pending |
-| Firefox and Edge workflow matrix | Atharv, with teammates who have the browsers | Pending; use steps in system report and record actual versions/results |
-| User administration mutations | Annamalai | FR-AUTH-006 baseline gap; decide implementation or explicit scope acceptance |
-| General inventory-history filters | Apurv / Avaneesh | TC-INV-06 baseline gap; decide implementation or explicit scope acceptance |
-| Dedicated purchase report and aggregate totals | Avaneesh / Atharv | TC-REP-03 partial; purchase-history filters/per-order totals exist |
-| Sprint 1 one-minute video upload | Atharv | **Already recorded**, per Atharv; he will upload later |
-| Sprint 2 two-minute video | Atharv | He will record and upload later |
-| Final report refresh after any code changes | Annamalai, coordinated by Atharv | Rerun coverage/browser/review and regenerate reports; preserve tested source identity |
+Current case dispositions are **60 PASS, 2 PARTIAL, 1 DEFERRED and 3 N/A**. Of the passes, 56 have automated assertions, two are recorded static reviews, one is suite execution and one is the completed peer-review/CI check. The original run's 59-pass disposition preceded the peer approval of TC-NFR-10. No absent feature or unrun browser check is counted as passed.
 
-Atharv initially requested a direct-main push using his identity. GitHub rejected it with GH006 because main requires a pull request; Atharv then authorized a QA branch and PR as AtharvMitt. The source was tested on local main before branching. Publication uses the normal protected-branch PR route; peer review and merge remain pending.
+[PR #43](https://github.com/AtharvMitt/Electronics-Store-Management/pull/43) was approved by Annamalai (`therealannaa`) and merged on 12 November. [PR #44](https://github.com/AtharvMitt/Electronics-Store-Management/pull/44) was approved by AtharvMitt and merged the same day. It fixes Windows coverage execution and applies a 15-second volume-test allowance when `NODE_V8_COVERAGE` is set; normal runs retain 5 seconds. Its four [CI jobs](https://github.com/AtharvMitt/Electronics-Store-Management/actions/runs/43186995293) passed. The PR records a successful Windows run; its raw output is not part of the committed Linux evidence.
 
-## Reproduce and refresh
+## Test locations and commands
 
-Use the environment and commands in [Test Plan §5](../specifications/software-test-plan.md). `npm run test:coverage` uses Node built-in coverage and writes backend/client JSON plus LCOV. `node scripts/qa-browser.mjs` exercises a real Chromium workflow using disposable data. `node scripts/qa-review.mjs` runs lint/build/whitespace and snapshot reviews. `node scripts/testing-reports.mjs` joins area rows and generates four reports, rejecting unsupported automated PASS labels. `python scripts/render-specifications.py` creates print HTML; export that HTML with LibreOffice to regenerate the PDF companions.
+| Location | Purpose |
+| --- | --- |
+| `server/tests/` | 13 files: authentication, permissions, foundation/schema, products, inventory, suppliers, purchases, sales/reports, stock consistency, API end-to-end and NFR tests |
+| `client/tests/` | 6 files: API client and product, inventory, supplier, purchase, sale/report DOM tests |
+| `scripts/qa-browser.mjs` | Separate Chromium workflow automation |
+| `scripts/qa-review.mjs` | Lint/build/whitespace, module and client-secret checks |
+| `docs/testing/test-cases/` | Four area mappings: auth/security (15), products/stock (14), inventory/sales/reports (14), purchases/common/NFR (23) |
 
-The committed evidence describes its recorded source revision and hashes, not a future commit. Any business-code or test change requires new evidence. The Node coverage figures apply only to measured files; JSX and unimported startup files are listed separately.
+`npm test` runs both workspaces. `npm run test:coverage` records unit/integration coverage. Browser and review scripts run separately. Environment and report-refresh instructions are in [Test Plan §5](../specifications/software-test-plan.md).
 
-## Demo preparation
+## Acceptance limitations
 
-Use synthetic seed data. Demonstrate login and role-specific actions; create an order without stock change; receive goods and observe stock; sell stock and observe inventory/report totals; show threshold equality, invalid input, over-receipt and no-oversell behavior; logout. The automated 12-step API flow and browser script provide a rehearsal. State the known user/history/purchase-report scope gaps accurately. Record/upload the two sprint videos separately; no generated video placeholder counts as a submitted video.
+| Item | Delivered state |
+| --- | --- |
+| FR-AUTH-006: user administration | Read-only Team page; no account mutation API/UI |
+| FR-INV-006: inventory history filters | Audit records exist; no general product/date history API/UI |
+| FR-REP-003: purchase report | Filtered purchase history and per-order totals; no aggregate report endpoint/screen |
+| NFR-007: browser support | Chromium tested; Firefox and Edge execution not recorded |
+| NFR-003: trained-user usability | Search and stock share one page; no separate trained-user acceptance record |
+| NFR-002, SEC-005, SEC-010 | Availability window and deployed HTTPS/database privileges not validated in the local environment |
+
+Peer approval of the implementation and QA does not waive unmet requirements. Video submission and sprint review records are listed in [Sprint 1](../sprints/sprint-1.md) and [Sprint 2](../sprints/sprint-2.md).

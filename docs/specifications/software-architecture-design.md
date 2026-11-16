@@ -1,10 +1,10 @@
 # TechZone — Software Architecture and Design Specification
 
-Team 9 · Revision 2.0 · 11 November 2026 · As implemented
+Team 9 · Delivered architecture · 16 November 2026 · Source baseline `82ef87a`
 
 ## 1. Purpose, baseline and scope
 
-This is the updated SAD for the delivered system, replacing the original Django/PostgreSQL implementation proposal with the actual MERN design. Requirement IDs remain those of the [revised SRS](software-requirements-specification.md). The original root PDFs remain historical submissions; this revision claims no external sign-off. [Testing evidence](../testing/README.md) records the verified source and limitations.
+This SAD describes the delivered MERN system. Requirement IDs remain those of the [revised SRS](software-requirements-specification.md). The [original PDFs](../archive/README.md) remain historical submissions. [Testing evidence](../testing/README.md) records the verified source and limitations.
 
 ## 2. Architectural drivers and constraints
 
@@ -14,13 +14,7 @@ The repository uses npm workspaces (`client`, `server`), JavaScript ES modules, 
 
 ## 3. Context and component view
 
-```mermaid
-flowchart LR
-  Staff[Staff browser] --> UI[React workspace pages]
-  UI -->|JSON /api and session cookie| API[Express routes and guards]
-  API --> Services[Module services and reference checks]
-  Services -->|Mongoose session transactions| DB[(MongoDB replica set)]
-```
+![Staff browser, React client, Express API, services and MongoDB replica set](architecture.svg)
 
 | Component / path | Responsibility |
 | --- | --- |
@@ -130,4 +124,4 @@ GitHub Actions runs lint/build and real database tests on PRs, with native Windo
 
 Core validation covers service/API/DOM behavior, role matrices, exact money, rollback, concurrency, retries, end-to-end integration and local performance/volume. Source manifest, raw JSON/LCOV, per-file counts and branch explanations are under [testing](../testing/README.md). Browser checks exercise real Chromium and temporary data; they do not instrument JSX for Node coverage.
 
-Outstanding scope: administrative account mutations, inventory-history filters, dedicated purchase report/aggregate totals, Firefox/Edge execution, production controls and peer review. Coverage excludes unimported server startup and uninstrumented JSX; high backend percentages do not establish complete frontend or baseline requirement coverage. Updated [Test Plan](software-test-plan.md) ties each original TC to implementation, change, procedure and result.
+Outstanding scope: administrative account mutations, inventory-history filters, dedicated purchase report/aggregate totals, Firefox/Edge execution and production controls. QA and the Windows coverage fix received peer approval on 12 November; this does not resolve the outstanding functional requirements. Coverage excludes unimported server startup and uninstrumented JSX; high backend percentages do not establish complete frontend or baseline requirement coverage. The [Test Plan](software-test-plan.md) ties each original TC to implementation, change, procedure and result.

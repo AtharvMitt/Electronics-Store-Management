@@ -1,6 +1,6 @@
 # Apurv — products stock test cases
 
-Updated 11 November 2026 against the implementation. Prepared centrally for QA delivery. After GitHub rejected direct main publication, Atharv authorized a QA branch and PR. Owner names identify review responsibility, not authorship or completed teammate review.
+Cases for the delivered system. Automated results refer to the 11 November Linux run; later review evidence is identified separately in the [QA index](../README.md). Area ownership identifies responsibility, not proof of individual review.
 
 | TC ID | Requirement | What we test now | Change from original plan | Automated test / manual steps | Result |
 | --- | --- | --- | --- | --- | --- |

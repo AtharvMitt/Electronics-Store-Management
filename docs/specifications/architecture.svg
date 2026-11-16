@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="220" viewBox="0 0 1100 220" role="img" aria-labelledby="title desc">
+<title id="title">TechZone application architecture</title>
+<desc id="desc">Staff browser uses the React client, which sends JSON and a session cookie to the Express API. Authorized routes call services that access a MongoDB replica set through Mongoose transactions.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#355b50"/></marker></defs>
+<rect width="1100" height="220" fill="white"/>
+<g fill="#eff5f2" stroke="#355b50" stroke-width="2"><rect x="10" y="65" width="170" height="90" rx="8"/><rect x="230" y="65" width="170" height="90" rx="8"/><rect x="450" y="65" width="170" height="90" rx="8"/><rect x="670" y="65" width="170" height="90" rx="8"/><rect x="890" y="65" width="200" height="90" rx="8"/></g>
+<g stroke="#355b50" stroke-width="2" marker-end="url(#arrow)"><path d="M180 110 H225"/><path d="M400 110 H445"/><path d="M620 110 H665"/><path d="M840 110 H885"/></g>
+<g fill="#182c25" font-family="Liberation Sans, sans-serif" text-anchor="middle"><g font-size="19" font-weight="bold"><text x="95" y="102">Staff browser</text><text x="315" y="102">React client</text><text x="535" y="102">Express API</text><text x="755" y="102">Services</text><text x="990" y="102">MongoDB</text></g><g font-size="14"><text x="95" y="130">Five staff roles</text><text x="315" y="130">Vite / Tailwind</text><text x="535" y="130">Session / permissions</text><text x="755" y="130">Rules / transactions</text><text x="990" y="130">Replica set / Mongoose</text><text x="425" y="42">JSON + session cookie</text><text x="875" y="185">Atomic stock and history writes</text></g></g>
+</svg>

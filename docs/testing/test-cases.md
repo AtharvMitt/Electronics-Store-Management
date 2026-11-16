@@ -2,7 +2,7 @@
 
 All **65 original unique TC IDs** are retained. **TC-PUR-06** is added for FR-PUR-006, which the original table skipped: **66 cases total**. The repeated TC-SEC-03 in the original functional/security sections counts once. NFR case numbers differ from requirement numbers: TC-NFR-08 = NFR-009; TC-NFR-09 = NFR-010.
 
-Joined from the four [area files](test-cases/); module ownership is review responsibility. No teammate review is claimed by these generated results.
+Joined from the four [area files](test-cases/). Automated evidence is from 11 November; TC-NFR-10 includes the 12 November peer approvals. See [procedures](test-procedures.md) for fixtures, expected results and additional FR-AUTH-006/NFR-003/E2E mappings. Current totals: 60 PASS, 2 PARTIAL, 1 DEFERRED and 3 N/A.
 
 | TC ID | Requirement | What we test now | Change from original plan | Automated test / manual steps | Result |
 | --- | --- | --- | --- | --- | --- |
@@ -69,6 +69,6 @@ Joined from the four [area files](test-cases/); module ownership is review respo
 | TC-NFR-04 | NFR-005 | Review separated modules, service transaction ownership and core test files. | Express module directories replace Django apps. | docs/specifications/software-architecture-design.md; scripts/qa-review.mjs | PASS (review) |
 | TC-NFR-05 | NFR-006 | Real API/service/component suites execute without skipped integration tests. | Node test runner, Supertest and jsdom replace pytest; unique disposable test databases. | evidence/server-results.json; evidence/client-results.json | PASS (suite execution) |
 | TC-NFR-06 | NFR-007 | Run integrated desktop/mobile-width flow in Chromium; Firefox/Edge checks pending. | Headless browser automation is recorded separately from human checks; other required browsers unavailable. | scripts/qa-browser.mjs; follow manual matrix in system-validation-report.md on Firefox and Edge. | PARTIAL (browser matrix pending) |
-| TC-NFR-07 | NFR-008 | Load 10000 products, 100000 audit records; search, report and adjust stock. | Synthetic schema-validated fixture; single local client, 5-second usability budget per operation. | server/tests/non-functional.test.js; diagnostics in evidence/server-results.json | PASS (automated) |
-| TC-NFR-10 | NFR-011 | ESLint, build and whitespace checks; inspect Git workflow. | ESLint/GitHub Actions replace SonarQube/Jenkins; main protection requires the authorized QA PR; peer review is pending. | docs/testing/evidence/quality-checks.json; teammate review still required. | PARTIAL (peer review pending) |
+| TC-NFR-07 | NFR-008 | Load 10000 products, 100000 audit records; search, report and adjust stock. | Synthetic schema-validated fixture; single local client; 5 seconds normally, 15 seconds when NODE_V8_COVERAGE is set. The recorded Linux run used 5 seconds. | server/tests/non-functional.test.js; diagnostics in evidence/server-results.json | PASS (automated) |
+| TC-NFR-10 | NFR-011 | ESLint/build/whitespace checks, CI and peer review. | GitHub Actions and ESLint; PR #43 approved by Annamalai and PR #44 by AtharvMitt on 12 November. | docs/testing/evidence/README.md; quality-checks.json; PR #43/#44 reviews and CI run 43186995293 | PASS (peer review) |
 | TC-NFR-11 | NFR-012 | Inventory events preserve responsible actor, source, reason and timestamp. | Immutable inventoryTransactions collection; adjustment audit tests check Date values. | server/tests/inventory.test.js; server/tests/end-to-end.test.js | PASS (automated) |

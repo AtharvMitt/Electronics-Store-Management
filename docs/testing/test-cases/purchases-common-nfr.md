@@ -1,6 +1,6 @@
 # Atharv — purchases common nfr test cases
 
-Updated 11 November 2026 against the implementation. Prepared centrally for QA delivery. After GitHub rejected direct main publication, Atharv authorized a QA branch and PR. Owner names identify review responsibility, not authorship or completed teammate review.
+Cases for the delivered system. Automated results refer to the 11 November Linux run; later review evidence is identified separately in the [QA index](../README.md). Area ownership identifies responsibility, not proof of individual review.
 
 | TC ID | Requirement | What we test now | Change from original plan | Automated test / manual steps | Result |
 | --- | --- | --- | --- | --- | --- |
@@ -24,6 +24,6 @@ Updated 11 November 2026 against the implementation. Prepared centrally for QA d
 | TC-NFR-04 | NFR-005 | Review separated modules, service transaction ownership and core test files. | Express module directories replace Django apps. | docs/specifications/software-architecture-design.md; scripts/qa-review.mjs | PASS (review) |
 | TC-NFR-05 | NFR-006 | Real API/service/component suites execute without skipped integration tests. | Node test runner, Supertest and jsdom replace pytest; unique disposable test databases. | evidence/server-results.json; evidence/client-results.json | PASS (suite execution) |
 | TC-NFR-06 | NFR-007 | Run integrated desktop/mobile-width flow in Chromium; Firefox/Edge checks pending. | Headless browser automation is recorded separately from human checks; other required browsers unavailable. | scripts/qa-browser.mjs; follow manual matrix in system-validation-report.md on Firefox and Edge. | PARTIAL (browser matrix pending) |
-| TC-NFR-07 | NFR-008 | Load 10000 products, 100000 audit records; search, report and adjust stock. | Synthetic schema-validated fixture; single local client, 5-second usability budget per operation. | server/tests/non-functional.test.js; diagnostics in evidence/server-results.json | PASS (automated) |
-| TC-NFR-10 | NFR-011 | ESLint, build and whitespace checks; inspect Git workflow. | ESLint/GitHub Actions replace SonarQube/Jenkins; main protection requires the authorized QA PR; peer review is pending. | docs/testing/evidence/quality-checks.json; teammate review still required. | PARTIAL (peer review pending) |
+| TC-NFR-07 | NFR-008 | Load 10000 products, 100000 audit records; search, report and adjust stock. | Synthetic schema-validated fixture; single local client; 5 seconds normally, 15 seconds when NODE_V8_COVERAGE is set. The recorded Linux run used 5 seconds. | server/tests/non-functional.test.js; diagnostics in evidence/server-results.json | PASS (automated) |
+| TC-NFR-10 | NFR-011 | ESLint/build/whitespace checks, CI and peer review. | GitHub Actions and ESLint; PR #43 approved by Annamalai and PR #44 by AtharvMitt on 12 November. | docs/testing/evidence/README.md; quality-checks.json; PR #43/#44 reviews and CI run 43186995293 | PASS (peer review) |
 | TC-NFR-11 | NFR-012 | Inventory events preserve responsible actor, source, reason and timestamp. | Immutable inventoryTransactions collection; adjustment audit tests check Date values. | server/tests/inventory.test.js; server/tests/end-to-end.test.js | PASS (automated) |

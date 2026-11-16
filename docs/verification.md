@@ -1,180 +1,29 @@
 # Verification evidence
 
-## Stories #15 and #16 — suppliers, purchase orders and receipts
+## Delivered baseline
 
-Environment: Arch Linux, Node.js 26.12.1, MongoDB 8.3 replica set on loopback port 27018. New tests create/drop only uniquely named `techzone_test_suppliers_*`, `techzone_test_purchases_*` and `techzone_test_purchase_upgrade_*` databases. Existing application data and seed definitions are unchanged.
+Application delivery is recorded through `82ef87a` on 12 November 2026. The [QA index](testing/README.md) and [evidence provenance](testing/evidence/README.md) identify recorded runs, source hashes, peer reviews and limitations. Automated tests are in `server/tests/` and `client/tests/`; browser checks are in `scripts/qa-browser.mjs`.
 
-| Check | Observed result |
-| --- | --- |
-| `npm ci` | Locked installation passed; zero audit vulnerabilities reported |
-| `npm test` | 75 backend/database tests and 20 frontend interaction tests passed; zero failed/skipped |
-| `npm run lint` | Passed |
-| `npm run build` | Passed |
-| `git diff --check` | Passed |
-| Automated Brave/Chromium browser smoke | Supplier creation/edit/deactivation, active selection, exact order totals, partial/full receipts, stock/alert/adjustment/sale availability refresh, over-receipt rejection, stable supplier snapshots, Sales read-only controls and backend 403 passed; no uncaught page exceptions |
+| Evidence | Environment / source | Observed result |
+| --- | --- | --- |
+| [Committed QA run](testing/unit-test-report.md), 11 November | Arch Linux, Node 26.12.1, MongoDB 8.3.9; source `27e6e15`, isolated QA replica set on 27019 | 106 backend + 24 frontend passes; zero failures/skips; lint/build/whitespace passed |
+| [Browser workflow](testing/system-validation-report.md), 11 November | Chromium 156.0.8078.73; 1440×1000 and 390×844 | Seven checks passed: login, supplier/order/receipt, sale/report refresh, search/clear, mobile-width navigation and logout |
+| [Navigation PR #42](https://github.com/AtharvMitt/Electronics-Store-Management/pull/42), merged 9 November | Arch Linux / Brave-Chromium; implementation `cecf2ed` | Reported verification of seven page URLs, roles, drafts/retries, back/forward, keyboard focus and widths 320–1440; [four CI jobs passed](https://github.com/AtharvMitt/Electronics-Store-Management/actions/runs/42607762931) |
+| [Windows coverage PR #44](https://github.com/AtharvMitt/Electronics-Store-Management/pull/44), 12 November | Windows 11, Node 24.13.0, MongoDB 8.3.11; `c9616ba` | Author reports 106 + 24 passes for coverage and normal tests; lint passed; Windows raw coverage was not committed |
+| [PR #44 CI](https://github.com/AtharvMitt/Electronics-Store-Management/actions/runs/43186995293) | Linux lint/build and real database tests; native Windows 2025 and macOS 15 | All four jobs passed; CI runs normal tests, not `test:coverage` or the browser script |
 
-New coverage verifies all five roles and unauthenticated requests, required/optional supplier fields, persistence, unknown/invalid purchase fields and references, date boundaries, exact safe-integer costs/totals, draft/order/cancel transitions, no stock change on order creation, correctly targeted partial/full receipts, receipt history, over-receipt and stock limits, concurrent same-key retries, conflicting keys across different orders/products, and failure rollback. Forced second-line audit and receipt-persistence errors leave order quantities, stock, receipt records and inventory history unchanged, then permit a successful retry.
+The committed backend coverage is 98.89% lines, 99.01% functions and 94.39% branches. Client measurements cover only `api.js`: 85.00% lines, 32.14% functions and 94.12% branches. JSX and server startup are unmeasured; see the [code](testing/code-coverage-report.md) and [branch](testing/branch-coverage-report.md) reports.
 
-The migration-upgrade test constructs the actual 001–003 collections/validators/indexes with an existing record, applies only 004/005, confirms preservation and repeatability, and checks durable receipt-key/history indexes. The existing #11 purchase-source fixture now conforms to the new validator without bypassing constraints or weakening assertions. No new package or seed change is needed. [PR #36](https://github.com/AtharvMitt/Electronics-Store-Management/pull/36) links the implementation, exact head and remote checks.
+## Defects reproduced and resolved
 
-React tests exercise supplier mutations/read-only roles, active selection, exact costs, history filters, order editing/cancellation, receipt input validation, lost-response retries with locked original content/key, and saved-write/failed-refresh recovery. Automated browser verification used a separate temporary test database and application ports, then removed that database. Human peer review and Firefox/Edge verification remain pending. Existing CI jobs run the same root commands on Linux and native Windows/macOS; remote results must be checked for the actual PR head and are linked in the PR.
+| Defect | Reproduction and correction | Retest evidence |
+| --- | --- | --- |
+| Sale transaction retry reset | Baseline `4dc6b3e` failed competing-sale and forced-transient-conflict tests because strict embedded sale items had an implicit version key. `versionKey: false` fixed reset/abort handling | 10 passed / 2 failed before; all 12 focused tests passed after. Full suite at that stage: 104 backend + 20 frontend. [Stock consistency](stock-consistency.md), merged [PR #40](https://github.com/AtharvMitt/Electronics-Store-Management/pull/40) |
+| Windows coverage reporter path | Plain Windows path caused `ERR_UNSUPPORTED_ESM_URL_SCHEME`; reporter now uses `pathToFileURL` | Successful Windows coverage reported in PR #44 |
+| Instrumented volume-test timing | Windows inventory report took 5407 ms against a 5000 ms budget under coverage. Test now allows 15000 ms when NODE_V8_COVERAGE is set, otherwise 5000 ms | PR #44 reports both coverage and normal test runs passing |
 
-## Issue #9 — 2026-11-01
+## Review and acceptance
 
-Environment: Arch Linux, Node.js 26.12.1, existing local MongoDB replica set on 127.0.0.1:27018. Tests use a generated `techzone_test_products_<random>` database and remove only that database.
+Annamalai (`therealannaa`) approved the QA mapping/reports in [PR #43](https://github.com/AtharvMitt/Electronics-Store-Management/pull/43) on 12 November. AtharvMitt approved PR #44 the same day. Merges are `01ad563` and `82ef87a` respectively. These approvals do not accept the deferred account/history workflows or partial purchase reporting.
 
-| Check | Observed result |
-| --- | --- |
-| `npm test` | 39 backend tests and 4 React DOM interaction tests passed; 0 failed, 0 skipped |
-| `npm run lint` | Passed |
-| `npm run build` | Passed |
-| `git diff --check` | Passed |
-
-Eight new database/API tests cover CRUD persistence, required/type/numeric validation, duplicate identifiers, missing/invalid references, authentication and role denial on every endpoint, product retirement/history preservation, protected category deletion, product/stock rollback and concurrent category deletion/reference creation. Four new React DOM tests cover creation, integer price conversion, editing, permission visibility, refresh, deactivation and deletion errors. Tests run through `npm test` and the existing four CI jobs; no workflow checks are weakened.
-
-Local sandbox network/process restrictions prevented direct MongoDB startup and npm download; checks were run with authorized elevated access against the already-running local replica set. Browser/cross-browser manual verification and peer review remain pending. Project 3 returned null to the ofsadug API token, so board fields/status could not be verified or changed. Original issue ownership, points and Epic are preserved. Remote CI evidence will be linked in the PR after execution; no CI pass is inferred from local results.
-
-## Issue #8 — 2026-10-29
-
-Environment: Arch Linux; Node.js 26.12.1; npm 12.2.1; AUR `mongodb-bin` 8.3.9; project replica set `techzone-dev` on loopback port 27018.
-
-| Check | Observed result |
-| --- | --- |
-| `npm run db:start` | Started isolated database and elected writable primary |
-| `npm run lint` | Passed |
-| `npm test` | 4 passed, 0 failed, 0 skipped; includes real database readiness |
-| `npm run build` | React/Tailwind production build passed |
-| `npm run dev` | React on 5173 and API on 5000 started |
-| `GET http://127.0.0.1:5173/` | React HTML served |
-| `GET http://127.0.0.1:5173/api/ready` | HTTP 200, `{"status":"ready"}` through frontend proxy |
-
-This is foundation verification, not completed authentication, inventory, or transaction workflow testing. Browser interaction/cross-browser checks and teammate reproduction remain to be performed during review/integration. PR commits identify the tested implementation.
-
-## Issue #24 — 2026-10-29
-
-Full suite: 16 passing tests (4 foundation, 12 schema), 0 skipped, against the local MongoDB 8.3 replica set. Schema setup also applied successfully through `npm run db:setup`. The seed CLI was executed against the isolated test database without printing credentials. The new tests create/drop only their uniquely generated test database.
-
-Coverage includes replayable schema setup, unique indexes, direct database rejection of invalid stock/prices/statuses, invalid references on create/update, seeded role/account/stock boundaries, salted password verification, seed replay preserving existing data, append-only history, protected historical references, and rollback after a forced multi-document transaction failure. The first schema run identified Mongoose automatic collection creation racing setup; disabling automatic creation resolved it.
-
-Login/UI, concurrent stock business operations, purchase/sale retry semantics, and end-to-end permission behavior are not implemented or claimed by these checks.
-
-Cross-platform follow-up: replaced Unix-only MongoDB `--fork` with Node-managed detached startup and project PID tracking, removed shell-dependent test globs, and added native Windows PowerShell/macOS/Linux cloning, PATH, configuration, validation, shutdown and troubleshooting instructions to README. Native CI checks are added under #12; only actually executed results are recorded.
-
-## Issue #12 — 2026-10-29
-
-The Linux CI workflow passed on commit `d0afd3e`: https://github.com/AtharvMitt/Electronics-Store-Management/actions/runs/40869627836 (PR run) and https://github.com/AtharvMitt/Electronics-Store-Management/actions/runs/40869621423 (push run). Both lint/build and real MongoDB API tests passed. Earlier failures and the supported-kernel runner fix remain visible in commit/run history.
-
-The complete CI branch then passed **all four checks** on `a533eb2`: [run 40871621952](https://github.com/AtharvMitt/Electronics-Store-Management/actions/runs/40871621952). This includes native Windows 2025 and macOS 15 install/start/test/lint/build/stop checks, not just Linux containers. The macOS installation requires trust for MongoDB's official Homebrew tap including its database-tools dependency; README and CI were corrected from the observed failures.
-
-The full schema implementation passed **all four checks** on `0355864`: [PR run 40871635802](https://github.com/AtharvMitt/Electronics-Store-Management/actions/runs/40871635802). All 16 API/schema tests passed with no skips in the Linux, Windows and macOS database jobs. Each native job used the actual portable project MongoDB startup/shutdown helper. Native Windows/macOS build and lint checks also passed. Browser interaction and cross-browser UI testing remain feature/integration work.
-
-## Issue #6 — 2026-10-30
-
-Environment: Windows 11; Node.js 24.13.0; MongoDB Community Server 8.3.11; project replica set `techzone-dev` on loopback port 27018.
-
-| Check | Observed result |
-| --- | --- |
-| `npm run db:setup` | Applied `001-initial-inventory-foundation, 002-authentication-sessions` |
-| `npm run lint` | Passed |
-| `npm test` | 25 passed, 0 failed, 0 skipped (4 foundation, 12 schema, 9 auth) |
-| `npm run build` | React/Tailwind production build passed |
-| Browser, wrong password | "Invalid email or password." shown; password field cleared; no session |
-| Browser, seeded sales account | Logged in; header shows name, role and Log out; session survives reload; cookie not readable from page JavaScript |
-| Browser, Log out | Returned to login form; `GET /api/auth/me` then returned 401 |
-
-Role permissions (#7), user management screens, login rate limiting and HTTPS deployment are not implemented or claimed by these checks.
-
-## Issue #7 — 2026-10-30
-
-Same environment as #6 above.
-
-| Check | Observed result |
-| --- | --- |
-| `npm run lint` | Passed |
-| `npm test` | 31 passed, 0 failed, 0 skipped (4 foundation, 12 schema, 9 auth, 6 permissions) |
-| `npm run build` | React/Tailwind production build passed |
-| Browser, seeded sales account | Cards list only "Record sales" and "Sales reports"; no Users panel; `GET /api/users` returned 403 |
-| Browser, seeded admin account | All 11 actions listed; Users panel showed all 6 seeded accounts |
-
-At this 2026-10-30 #7 verification baseline, feature routes for products, inventory, suppliers, purchases, sales and reports did not exist yet; their owners added `requirePermission` in their feature work. User create/edit/deactivate screens (FR-AUTH-006) are not part of #7.
-
-## Issue #11 — 2026-11-01
-
-Environment: Arch Linux, Node.js 26.12.1, local MongoDB replica set on 127.0.0.1:27018. Tests generate/drop only `techzone_test_inventory_<random>`; no application database reset.
-
-| Check | Observed result |
-| --- | --- |
-| `npm ci` | Clean locked install passed |
-| `npm test` | 42 backend + 4 React DOM tests passed; 0 failed, 0 skipped |
-| `npm run lint` | Passed |
-| `npm run build` | Passed |
-| `git diff --check` | Passed |
-
-Eleven new real database/API tests verify correct product/actor, increases/decreases, zero confirmation, exact depletion, safe integer bounds, malformed fields, unauthorized roles, missing/inactive product/stock, persistence via a new read, audit details, failure rollback, six concurrent increments and competing decrements, standalone service use, caller-owned transaction rollback, abort after caught audit failure, source references and source/stock/history rollback together. Four React tests cover signed adjustments and selected-product targeting, component reload, permission visibility, validation/insufficient-stock feedback, and saved-write/failed-refresh recovery without resubmission.
-
-Tests required authorized execution outside local sandbox network/process restrictions. Existing CI jobs run the same root command with real MongoDB and both workspaces; no checks/tests were weakened. Browser/cross-browser manual review and integrated Sprint 2 flows remain pending. No migration or dependency on #9 is required.
-
-`npm audit` reported six moderate findings through existing development lint dependencies (minimatch/eslint/react plugin); those locked versions match origin/main. No new test-tool package appeared in the audit findings. No forced dependency downgrade/major change was applied. Remote CI must be checked for the exact pushed commit; local results do not imply remote success.
-
-## Issues #10, #19, #17 and #20 — 2026-11-05
-
-Environment: Windows; Node.js 24.11.0; MongoDB Community Server 8.2 replica set on 127.0.0.1:27018. Tests generated unique database names and dropped only those databases.
-
-| Check | Observed result |
-| --- | --- |
-| `npm test` | 57 backend tests and 11 frontend tests passed; 0 failed, 0 skipped |
-| `npm run lint` | Passed |
-| `npm run build` | Vite production build passed |
-| `git diff --check` | Passed |
-
-New backend coverage checks stored inventory quantities, product/category search, category and low-stock filters, invalid/empty results, threshold equality and stock-change warnings; sale permissions, multi-line validation, exact minor-unit totals, insufficient-stock rejection, transaction retrieval, concurrent idempotent retries and audit-failure rollback; report permissions, date boundaries, empty results and totals against stored transactions. Frontend tests exercise filter/clear actions, low-stock status, sale entry/history refresh, report date filters and empty states. Migration 003 and direct MongoDB validators/indexes are covered in schema tests. These are automated integration/component checks; no manual browser or teammate review is claimed.
-
-## Issue #25 — 2026-11-09
-
-Environment: Windows 11; Node.js 24.13.0; MongoDB Community Server 8.3.11 replica set on 127.0.0.1:27018. The new test seeds and drops its own uniquely named database.
-
-| Check | Observed result |
-| --- | --- |
-| `npm run lint` | Passed |
-| `npm test` | 80 backend tests and 20 frontend tests passed; 0 failed, 0 skipped (5 new in `server/tests/permission-regression.test.js`) |
-
-`server/tests/permission-regression.test.js` re-checks the #7 matrix on the Sprint 2 endpoints. It sends all 16 supplier, purchase, sale and report operations as each of the 5 roles (80 requests): permitted roles pass authorization, the rest get 403, and the sweep creates no records. All 16 also return 401 without a session. Representative permitted transactions succeed end to end (Purchase staff create a supplier and order, Admin receives it, Sales records a sale, Manager reads all reports) with the expected stock changes. Fully valid requests from roles without permission, including ones carrying forged role data, get 403 and change no records or stock. Expired, forged and logged-out sessions get 401 on a sale and change no stock.
-
-No permission defects were found, so no defect issues were opened. Every route already applies `requireAuth` and the matching permission before its handler.
-
-
-## Issue #21 — 2026-11-09
-
-Environment: Windows 11; Node.js 24.13.0; MongoDB Community Server 8.3.11 replica set on 127.0.0.1:27018. The automated test seeds and drops its own uniquely named database.
-
-| Check | Observed result |
-| --- | --- |
-| `npm run lint` | Passed |
-| `npm test` | 87 backend tests and 20 frontend tests passed; 0 failed, 0 skipped (12 new in `server/tests/end-to-end.test.js`) |
-| `npm run build` | Vite production build passed |
-
-`server/tests/end-to-end.test.js` runs one store workflow in order through the HTTP API, each step logged in as the role that would do it: Inventory staff create a category and two products (zero stock); a sale is blocked with no stock; Purchase staff add a supplier and order 10 + 5 units (ordering leaves stock unchanged); goods arrive in two receipts (PARTIAL then RECEIVED) and an over-receipt is rejected; Inventory staff write off one damaged unit with a reason; Sales record a two-line sale with exact minor-unit totals, and a retry with the same Idempotency-Key does not deduct twice; a sale failing on one line deducts nothing; both products then appear as low stock, including one exactly at its minimum; the Manager's sales and inventory reports match the stored sale and stock; each product's history adds up to its current stock and records the right source and actor; a deactivated product keeps its stock and history but cannot be sold or reordered; and a logged-out session cannot record a sale.
-
-Browser check on the integrated app (seeded development data): Purchase staff saw supplier and purchase actions but view-only products, inventory and sales; receiving the remaining 3 units of a partially received order changed it to RECEIVED and updated the inventory and stock tables from 7 to 10 without a reload. Sales staff then saw "10 available", recorded a sale of 2 (total 4998.00), and the inventory table, sale product list and sales history updated to 8 immediately.
-
-No defects were found in the integrated workflow, so no defect issues were opened.
-
-## Issue #26 — service-level stock consistency and rollback
-
-Environment: Arch Linux; Node.js 26.12.1; MongoDB 8.3.9 replica set on loopback port 27018. The new suite creates/drops only its own uniquely named `techzone_test_consistency_*` database. Application data and development seeds are unchanged.
-
-| Check | Observed result |
-| --- | --- |
-| `node --test server/tests/stock-consistency.test.js`, baseline embedded-version setting | 10 passed, 2 failed; competing-sale and deterministic transient-conflict regressions reproduced the sale retry defect |
-| Same focused command after the fix | 12 passed, zero failures/skips |
-| `npm run lint` | Passed |
-| `npm test` | 104 backend + 20 frontend tests passed; zero failures/skips, including the merged #21 end-to-end and #25 permission suites |
-| `npm run build` and `git diff --check` | Passed |
-
-The 12 new tests call existing purchase, receipt, sale and stock services directly with real schema/indexes/transactions. They verify targeted increments/decrements with an untouched control product, no stock change at ordering, source IDs and actors, invalid quantity/source/availability rejection, concurrent and later idempotent replays, conflicting keys, and competing multi-line receipts/sales. Rejection and rollback checks compare complete raw snapshots of products, suppliers, inventory, inventory history, orders, receipts and sales, including reference versions.
-
-Second-line purchase/sale audit failures are injected only after observing both in-flight stock changes and the first audit event. Receipt-persistence failure is injected after both stock/history writes. Each failure leaves the full persisted snapshot unchanged; retry succeeds without residual records or duplicate stock. A deterministic TransientTransactionError injected after sale writes proves retry cleanup and one final committed sale/history set.
-
-**Defect found and fixed under #26:** strict embedded sale items had an implicit version key. Mongoose transaction reset tried to restore nonexistent `__v`, and a subsequent abort masked the original error as `Cannot call abortTransaction twice`. Disabling embedded sale-item versioning fixes the retry path without changing stored schemas, migrations or business stock guards. Both regressions were run with the original setting and failed, then passed with the correction. Details and acceptance mapping are in `docs/stock-consistency.md`.
-
-GitHub CLI is read-only for this delivery; no defect issue, PR or board change was submitted through another account. Remote CI will run when the manual PR is opened. Human review and merge remain pending; passing local checks does not mark the story Done.
+Firefox/Edge workflow results, trained-user acceptance, deployed HTTPS/database privileges and an uptime observation window are not recorded. [System validation](testing/system-validation-report.md) gives the current dispositions and manual procedures.
