@@ -1,12 +1,12 @@
 # Product and category management — #9
 
-Uses the existing Category, Product and Inventory models without a migration. SRS §10.2 (FR-PROD-001/002/003/004/006), §13.1, §14.2 and SAD §§8–9 define the fields, permissions and retention rules. Product search remains #10's responsibility; this story supplies the catalogue list and detail contract.
+Uses the existing Category, Product and Inventory models without a migration. SRS §10.2 (FR-PROD-001/002/003/004/006), §13.1, §14.2 and SAD §§8–9 define the fields, permissions and retention rules. Product search is available on the Inventory page; the Products page supplies catalogue list/detail and maintenance controls.
 
 ## Acceptance mapping
 
 | Issue criterion | Implementation | Evidence |
 | --- | --- | --- |
-| Authorized create/view | Authenticated product/category routes; React catalogue in the existing dashboard | `products.test.js`: TC-PROD-01/03/04 and endpoint permission tests; client create/view tests |
+| Authorized create/view | Authenticated product/category routes; React Products page | `products.test.js`: TC-PROD-01/03/04 and endpoint permission tests; client create/view tests |
 | Edit records | Validated PATCH operations, category selection, exact prices | TC-PROD-01/03/04; client edit test |
 | Respect deletion relationships | Products deactivate; used categories return 409 | TC-PROD-06; concurrent category deletion/reference test |
 | Validate fields/values | Explicit field allowlists, types/ranges/lengths, references and unique indexes | Required/numeric, duplicate and reference tests |
@@ -37,6 +37,6 @@ Product deletion always means retirement under SRS §13.1; a product with no his
 
 Product creation/reclassification and category deletion write the category's existing `__v` field in their transaction before checking/writing references. This produces a write conflict and retry for concurrent reference/deletion attempts; a snapshot read alone would allow an orphan. Product creation rolls back if inventory creation fails. Existing validators, indexes, models and historical guards remain unchanged.
 
-#11 adjusts seeded/existing products using the shared models. Inventory search/filtering and low-stock logic are in #10/#19; see [their contracts](inventory-sales-reports.md). This #9 product slice does not include purchasing or sales workflows. React tests use the existing Node test runner, Vite JSX loader and a development-only jsdom dependency; `npm test` runs both workspaces through existing CI jobs.
+Stock adjustments use the shared product/inventory models. Inventory search/filtering and low-stock logic are in #10/#19; see [their contracts](inventory-sales-reports.md). This #9 product slice does not include purchasing or sales workflows. React tests use the existing Node test runner, Vite JSX loader and a development-only jsdom dependency; `npm test` runs both workspaces through existing CI jobs.
 
-Manual peer verification pending: log in as Admin, create a category/product, edit them, reload, deactivate the product and attempt deleting its category; repeat as Inventory (no retirement actions), Sales (view only), and logged out. Automated DOM tests cover creation, editing, refresh, hidden actions and error feedback; no real-browser or cross-browser result is claimed.
+Manual reproduction: log in as Admin, create a category/product, edit them, reload, deactivate the product and attempt deleting its category; repeat as Inventory (no retirement actions), Sales (view only), and logged out. Automated DOM tests cover creation, editing, refresh, hidden actions and error feedback; integrated Chromium/navigation evidence is linked in [verification](verification.md), while Firefox/Edge results are not recorded.

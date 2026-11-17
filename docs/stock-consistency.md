@@ -2,11 +2,11 @@
 
 Owner: ofsadug · Sprint 2 · 3 points · Epic #2.
 
-`server/tests/stock-consistency.test.js` complements the merged #21 HTTP workflow by calling the purchase, receipt, sales and stock services directly against MongoDB. It reuses the existing implementation instead of introducing another stock mutation path. Sales use the existing `saleInput` → `recordSale` contract; purchases/receipts validate their own public service inputs. No Express or HTTP client is used in the new suite.
+`server/tests/stock-consistency.test.js` complements the merged #21 HTTP workflow by calling the purchase, receipt, sales and stock services directly against MongoDB. It reuses the existing implementation instead of introducing another stock mutation path. Sales use the existing `saleInput` → `recordSale` contract; purchases/receipts validate their own public service inputs. These service tests do not use an Express or HTTP client.
 
 ## Acceptance mapping
 
-| #26 criterion | New service-level evidence |
+| #26 criterion | Service-level evidence |
 | --- | --- |
 | Purchases increase only intended products | Multi-item order creation leaves stock unchanged; receipt increases match the exact received lines, preserve an untouched control product, update purchase progress, and link the receipt to PURCHASE events with the correct source and actor. |
 | Sales decrease only intended products | A multi-item sale deducts the exact requested quantities, leaves a control product unchanged and produces exactly the matching SALE events and actor/source IDs. |
@@ -35,7 +35,7 @@ npm run build
 git diff --check
 ```
 
-Run the new suite alone with:
+Run the suite alone with:
 
 ```bash
 node --test server/tests/stock-consistency.test.js
@@ -43,4 +43,4 @@ node --test server/tests/stock-consistency.test.js
 
 The suite creates a uniquely named `techzone_test_consistency_<random>` database, applies the real schema, builds its own user/product/supplier fixtures, and drops only that database. It does not reset application data or change development seeds. Failure hooks are restored after each test. Snapshot comparisons cover products, suppliers, inventory, inventory transactions, purchases, receipts and sales, including their saved quantities/statuses and reference versions.
 
-The PR should use `Closes #26`. Human review and remote PR CI remain required before merging. GitHub CLI is read-only in this work session; issue/project state and PR creation remain manual.
+The correction and tests were integrated in [PR #40](https://github.com/AtharvMitt/Electronics-Store-Management/pull/40), merged on 9 November (`b119fbf`). The earlier sale-to-stock verification (#18, merged PR #39) confirmed the existing deduction path at `4dc6b3e`: 92 backend + 20 frontend tests passed, along with lint/build. Current integrated results are in [verification](verification.md).

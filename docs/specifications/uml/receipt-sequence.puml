@@ -1,0 +1,58 @@
+@startuml
+skinparam shadowing false
+skinparam backgroundColor white
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 14
+skinparam sequenceMessageAlign center
+skinparam maxMessageSize 160
+hide footbox
+title TechZone — purchase receipt and atomic stock increase
+actor "ADMIN / PURCHASE" as Staff
+boundary "React client" as UI
+control "Express route\n+ auth guards" as API
+control "purchases/service.js" as Purchase
+control "inventory/service.js" as Stock
+database "MongoDB\nreplica set" as DB
+Staff -> UI : Submit received quantities
+UI -> API : POST /api/purchases/\n:id/receipts\nitems, key, cookie
+API -> DB : Resolve session\nand active user
+DB --> API : User + role
+API -> API : Check permission
+API -> Purchase : receivePurchase(id,\nbody, userId, key)
+Purchase -> Purchase : Normalize input; fingerprint\npurchase, actor and items
+note over API, Purchase
+  Invalid session / permission / input returns 401 / 403 / 400.
+end note
+group MongoDB transaction
+  Purchase -> DB : Recheck actor; find\nreceipt by requestId
+  DB --> Purchase : Existing receipt or none
+  alt Existing key with different fingerprint
+    Purchase -> Purchase : Reject with 409
+  else Existing key with matching fingerprint
+    Purchase -> DB : Read current purchase\n(no stock writes)
+  else New key
+    Purchase -> DB : Lock purchase\n(increment version)
+    Purchase -> Purchase : Require ORDERED / PARTIAL;\nvalidate remaining quantities
+    Purchase -> DB : Save receivedQty and\nPARTIAL / RECEIVED status
+    loop Each received line
+      Purchase -> Stock : applyStockChange\n(+qty, PURCHASE, purchaseId,\nuserId, session)
+      Stock -> DB : Recheck actor;\nlock active product
+      Stock -> DB : Guarded stock increase;\nappend inventory event
+      Stock --> Purchase : Inventory event ID
+    end
+    Purchase -> DB : Create receipt with\nitems and event IDs
+  end
+  note over Purchase, DB
+    Commit only on success. Any failure aborts the whole transaction,
+    including order progress, all stock/history writes and the receipt.
+  end note
+end
+Purchase --> API : Receipt + purchase or error
+API --> UI : 201 {receipt, purchase}\nor error
+UI --> Staff : Show result; refresh\ninventory after success
+note over Purchase, DB
+  Unique requestId prevents a second committed receipt for the same key.
+  Duplicate-key recovery reauthorizes and validates the fingerprint.
+  Replay returns the original receipt plus the current purchase.
+end note
+@enduml

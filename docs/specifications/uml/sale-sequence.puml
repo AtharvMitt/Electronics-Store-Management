@@ -1,0 +1,57 @@
+@startuml
+skinparam shadowing false
+skinparam backgroundColor white
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 14
+skinparam sequenceMessageAlign center
+skinparam maxMessageSize 160
+hide footbox
+title TechZone — sale creation and safe retry
+actor "ADMIN / SALES" as Staff
+boundary "React client" as UI
+control "Express route\n+ auth guards" as API
+control "sales/service.js" as Sale
+control "inventory/service.js" as Stock
+database "MongoDB\nreplica set" as DB
+Staff -> UI : Submit sale
+UI -> API : POST /api/sales\nitems, key, cookie
+API -> DB : Resolve session\nand active user
+DB --> API : User + role
+API -> API : Check permission;\nvalidate body/key
+API -> Sale : recordSale(items,\nuserId, key)
+note over API, Sale
+  Invalid session / permission / input returns 401 / 403 / 400.
+  Matching in-flight requests share a promise; conflicting reuse returns 409.
+end note
+group MongoDB transaction
+  Sale -> DB : Find Sale by requestId
+  DB --> Sale : Existing sale or none
+  alt Existing key with different actor or ordered items
+    Sale -> Sale : Reject with 409
+  else Existing key with matching actor and ordered items
+    Sale -> Sale : Return existing sale\n(no stock writes)
+  else New key
+    Sale -> DB : Recheck actor; read\nactive products and stock
+    Sale -> Sale : Validate stock and totals;\nbuild price snapshots
+    Sale -> DB : Save Sale and items
+    loop Each sale item
+      Sale -> Stock : applyStockChange\n(-qty, SALE, saleId,\nuserId, session)
+      Stock -> DB : Recheck actor;\nlock active product
+      Stock -> DB : Guarded stock decrement;\nappend inventory event
+      Stock --> Sale : Updated stock and event
+    end
+  end
+  note over Sale, DB
+    Commit only on success. Any failure aborts the whole transaction,
+    including all earlier stock/history writes and the sale.
+  end note
+end
+Sale --> API : Sale or error
+API --> UI : 201 {sale} or error
+UI --> Staff : Show result; refresh\ninventory after success
+note over Sale, DB
+  Unique requestId guards retries across processes/restarts.
+  Duplicate-key recovery reads and validates the committed sale.
+  Driver retries and low-level model validation are omitted.
+end note
+@enduml

@@ -1,16 +1,14 @@
 # TechZone — Software Requirements Specification
 
-Team 9 · Revision 2.0 · 11 November 2026 · Implementation baseline for Part 3
+Team 9 · Delivery specification · 16 November 2026 · Source baseline `82ef87a`
 
 ## 1. Introduction and document control
 
-This revision follows the section structure of the team's original IEEE-style SRS. It specifies the delivered internal electronics-store system and retains the original requirement identifiers for traceability. It supersedes the original implementation descriptions for this delivery, while the original root PDFs remain submission history. This is a team revision, not a claim of faculty approval, formal IEEE certification or acceptance of unmet requirements.
+This SRS specifies the delivered internal electronics-store system. It retains all 46 functional, 12 non-functional, 10 security and 12 business-rule identifiers from the original submission. Implemented, partial and deferred requirements are distinguished explicitly.
 
-Prepared under Atharv Mittal's requested direct-main documentation/QA delivery. Module owners must review the changes: Annamalai (authentication/security), Apurv (catalogue/stock), Avaneesh (inventory/sales/reports), Atharv (foundation/suppliers/purchases/common/NFR). Outstanding acceptance items are explicit below.
+The delivered stack is React/Vite/Tailwind, Express/Node.js and MongoDB/Mongoose. Sprint 1 ran 28 October–4 November and Sprint 2 ran 5–9 November 2026; integrated QA and the Windows coverage follow-up merged on 12 November. The original proposals are retained in the [submission archive](../archive/README.md).
 
-The original design used React, Django REST Framework, PostgreSQL, Jira, Jenkins, pytest and six sprints. The delivered system uses React/Vite/Tailwind, Express/Node.js ES modules, MongoDB/Mongoose, GitHub Issues/Projects, GitHub Actions and Node's built-in test runner with Supertest/jsdom. Sprint 1 ran 28 October–4 November and Sprint 2 ran 5–9 November 2026. The Part 3 deadline was 6 November; catch-up target is 12 November 2026 EOD IST. No earlier deadline has been rewritten as met.
-
-References: original `Team_9_TechZone_Electronics_SRS.pdf`; Parts II/III of `Team_9_TechZone_Final_Project_Documentation.pdf`; [SAD](software-architecture-design.md); [Test Plan](software-test-plan.md); [test case execution](../testing/test-cases.md); [implementation decisions](../decisions.md).
+References: [SAD](software-architecture-design.md), [Test Plan](software-test-plan.md), [test cases](../testing/test-cases.md), [procedures and additional traceability](../testing/test-procedures.md), [implementation decisions](../decisions.md).
 
 ## 2. Purpose, scope and system context
 
@@ -20,9 +18,9 @@ The web client uses a staff login followed by separate Inventory, Products, Supp
 
 ## 3. Users and operating environment
 
-Staff use a desktop browser; Chromium desktop and mobile-width workflow checks are recorded. Firefox and Edge remain required manual checks. Runtime requires Node.js >=24, npm workspaces and a MongoDB replica set for transactions. The verified machine uses Arch Linux, Node 26.12.1 and MongoDB 8.3.9. Native Windows/macOS CI setup exists; this run does not assert a new test execution on those hosts.
+Staff use a desktop browser; Chromium desktop and mobile-width workflow checks are recorded. Firefox and Edge remain required manual checks. Runtime requires Node.js >=24, npm workspaces and a MongoDB replica set for transactions. The verified machine uses Arch Linux, Node 26.12.1 and MongoDB 8.3.9. Native Windows/macOS and Linux CI passed for the Windows coverage follow-up; its PR also records a Windows coverage run. See [evidence provenance](../testing/evidence/README.md).
 
-Local development uses Vite at localhost:5173, an Express API on 127.0.0.1:5000 and a project MongoDB replica set on loopback port 27018. QA uses disposable named databases; this delivery's isolated replica set is on port 27019. Production TLS, authenticated DB users, deployment monitoring and backups are outside the verified local environment.
+Local development uses Vite at localhost:5173, an Express API on 127.0.0.1:5000 and a project MongoDB replica set on loopback port 27018. QA uses disposable named databases; the committed Linux run used an isolated replica set on port 27019. Production TLS, authenticated DB users, deployment monitoring and backups are outside the verified local environment.
 
 ## 4. External interfaces and constraints
 
@@ -94,7 +92,7 @@ Money uses nonnegative safe integers in minor units, displayed to two decimal pl
 | FR-PUR-003 | Create order for active supplier and active products, with no stock movement at ordering. Implemented. |
 | FR-PUR-004 | Require 1–100 unique product lines, positive whole ordered quantity, nonnegative unit cost. Implemented. |
 | FR-PUR-005 | Derive each line and order total from integer quantity/cost. Implemented. |
-| FR-PUR-006 | Record partial/full received quantities against an existing ordered purchase. Implemented; added missing TC-PUR-06. |
+| FR-PUR-006 | Record partial/full received quantities against an existing ordered purchase. Implemented; verified by TC-PUR-06. |
 | FR-PUR-007 | Receipt, received progress, stock and history commit atomically. Implemented. |
 | FR-PUR-008 | Reject quantity exceeding remaining order balance, including concurrent receipt attempts. No exception process. Implemented. |
 | FR-PUR-009 | Filter history by supplier/inclusive dates/status; retain supplier snapshot and receipt details. Implemented. |
@@ -134,15 +132,15 @@ Order states are DRAFT, ORDERED, PARTIAL, RECEIVED and CANCELLED. Unreceived ord
 | --- | --- |
 | NFR-001 | >=95% normal authenticated requests <=2 seconds under defined load. Tested with 100 sequential warmed reads across five routes on a small local database; no production or concurrency claim. |
 | NFR-002 | >=99% availability over a defined operating window. Unverified/N/A locally: no deployed window/monitor. |
-| NFR-003 | Trained user can find product/stock within three primary screens. Inventory provides search and quantity on one page; browser search/clear smoke passes. No original dedicated TC ID exists. |
+| NFR-003 | Trained user can find product/stock within three primary screens. Inventory provides search and quantity on one page; browser search/clear smoke passes. A separate trained-user acceptance result is not recorded; see the NFR-003 procedure in the Test Plan companion. |
 | NFR-004 | Retry creates no duplicate purchase/sale transaction. Real concurrent/repeated API/service and frontend retry checks. |
 | NFR-005 | Separated business modules with core tests. Module boundaries and test inventory reviewed. |
 | NFR-006 | Deterministic API/service behavior suitable for testing. Unique disposable databases and controlled fault injection; no skipped integration checks in the recorded run. |
 | NFR-007 | Current Chrome/Chromium, Firefox and Edge support. Chromium desktop/mobile-width verified; Firefox and Edge pending. |
-| NFR-008 | >=10000 products and 100000 transaction/item records without redesign. Synthetic 100000 valid audit records and 10000 products tested; three representative operations have a local 5-second usability budget, separate from NFR-001. |
+| NFR-008 | >=10000 products and 100000 transaction/item records without redesign. Synthetic 100000 valid audit records and 10000 products tested; three representative operations have a local 5-second usability budget, or 15 seconds when NODE_V8_COVERAGE is set. The allowance accounts for instrumentation and does not replace NFR-001. |
 | NFR-009 | Atomic purchase/sale/inventory updates. Forced later-line and receipt-persistence failures leave no partial changes. |
 | NFR-010 | Messages identify corrective field/operation. Representative React and API-client error assertions. |
-| NFR-011 | Naming/modularity/static analysis/Git review practices. ESLint/build checks pass; QA PR publication was authorized after main protection rejected direct push; peer review remains pending. |
+| NFR-011 | Naming/modularity/static analysis/Git review practices. ESLint/build and CI checks passed; PR #43 was approved by Annamalai and PR #44 by AtharvMitt on 12 November. Review evidence is linked in the QA package. |
 | NFR-012 | Inventory events retain responsible actor and timestamp. Database/service audit assertions. |
 
 ## 8. Security requirements
@@ -183,4 +181,4 @@ Physical collections: users, sessions, categories, products, inventory, inventor
 
 Acceptance evidence is the revised [Test Plan](software-test-plan.md), four [QA reports](../testing/README.md), all 65 original case IDs plus added TC-PUR-06, and the recorded source manifest. A test pass is evidence for its documented scope, not proof that deferred baseline scope is delivered.
 
-Outstanding decisions: resolve FR-AUTH-006, FR-INV-006 and FR-REP-003 with module owners; complete Firefox/Edge checks and peer review; retain production-only N/A dispositions until a deployment exists. No approval/waiver is inferred from this revision. Atharv will upload the already-recorded Sprint 1 video and later record/upload Sprint 2. QA catch-up and demo preparation are tracked in [delivery checklist](../testing/README.md).
+Outstanding acceptance items are FR-AUTH-006, FR-INV-006, FR-REP-003, the Firefox/Edge matrix and a trained-user usability result. Production controls and availability remain unverified until a deployment and operating window exist. Peer approval of the QA package does not constitute acceptance of unmet requirements. Current dispositions and evidence are in the [QA index](../testing/README.md).

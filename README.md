@@ -1,10 +1,10 @@
 # TechZone Electronics Store Management
 
-Team 9's internal store application, built with **MongoDB, Express, React, Node.js, and Tailwind CSS**. The [updated SRS, SAD and Test Plan](docs/testing/README.md) describe the delivered system, traceability, QA reports and outstanding scope. The root PDFs remain the original submissions. [Implementation decisions](docs/decisions.md) record the technology and two-sprint changes.
+Team 9's internal store application, built with **MongoDB, Express, React, Node.js, and Tailwind CSS**. The [SRS, SAD, Test Plan and QA reports](docs/testing/README.md) describe the delivered system and its remaining scope. Superseded proposals are in the [submission archive](docs/archive/README.md). [Implementation decisions](docs/decisions.md) record the technology and two-sprint changes.
 
 ## Requirements and platform preparation
 
-All platforms need Git, **Node.js 26 LTS** (`.nvmrc`; Node.js 24 is also supported), npm, and **MongoDB Community Server 8.x** with `mongod` on PATH. Install the database server, not just `mongosh` or Compass. No Docker, system service, or Atlas account is required locally. Use a supported desktop OS and browser.
+All platforms need Git, **Node.js >=24** (`.nvmrc` selects 26 for development/CI), npm, and **MongoDB Community Server 8.x** with `mongod` on PATH. Install the database server, not just `mongosh` or Compass. No Docker, system service, or Atlas account is required locally. Use a supported desktop OS and browser.
 
 ### Windows — PowerShell
 
@@ -37,7 +37,7 @@ Follow Homebrew's printed PATH instructions if needed. Native Apple Silicon and 
 
 ### Linux — Terminal
 
-Install Git, Node.js LTS/npm, and MongoDB Community Server for your distribution. On the lead's Arch Linux machine, `mongodb-bin` and `mongosh-bin` are already installed through AUR (`yay`); reuse them. Other distributions should follow [MongoDB's Linux installation instructions](https://www.mongodb.com/docs/manual/administration/install-on-linux/). Confirm `git --version`, `node --version`, `npm --version`, and `mongod --version`.
+Install Git, Node.js LTS/npm, and MongoDB Community Server for your distribution. Arch Linux users can install the community packages `mongodb-bin` and `mongosh-bin` through AUR. Other distributions should follow [MongoDB's Linux installation instructions](https://www.mongodb.com/docs/manual/administration/install-on-linux/). Confirm `git --version`, `node --version`, `npm --version`, and `mongod --version`.
 
 The helper does not require `sudo` or a systemd service. Keep the project database on loopback.
 
@@ -53,10 +53,15 @@ npm ci
 Copy-Item .env.example .env
 npm run db:start
 npm run db:setup
+$seedSecret = Read-Host 'Development password (12–128 characters)' -AsSecureString
+$env:SEED_PASSWORD = [System.Net.NetworkCredential]::new('', $seedSecret).Password
+npm run db:seed
+Remove-Item Env:\SEED_PASSWORD
+Remove-Variable seedSecret
 npm run dev
 ```
 
-Open **http://localhost:5173**. Keep this terminal running. In another PowerShell window in the repository:
+Open **http://localhost:5173**. Log in as `admin@techzone.example.test` with the password supplied above. Keep this terminal running. In another PowerShell window in the repository:
 
 ```powershell
 Invoke-RestMethod http://127.0.0.1:5000/api/health
@@ -79,6 +84,12 @@ npm ci
 cp .env.example .env
 npm run db:start
 npm run db:setup
+printf 'Development password (12–128 characters): '
+read -rs SEED_PASSWORD
+printf '\n'
+export SEED_PASSWORD
+npm run db:seed
+unset SEED_PASSWORD
 npm run dev
 ```
 
@@ -109,13 +120,13 @@ npm run db:stop
 
 ## Supplier management and purchase receipts
 
-After updating to the supplier/purchase implementation (#15/#16), run `npm run db:setup` against the running database to apply migrations `004-suppliers` and `005-purchase-orders-receipts`. Existing application records are preserved.
+Run `npm run db:setup` against the running database to apply migrations `004-suppliers` and `005-purchase-orders-receipts`. Existing application records are preserved.
 
 Admin and Purchase staff can manage supplier contacts, create/edit draft or ordered purchases, and record partial/full receipts. Creating an order does not change stock; saving a receipt increases only the quantities actually received. All roles can view suppliers and purchase history; history supports supplier/date/status filters. See [supplier and purchase contracts](docs/suppliers-purchases.md) for permissions, validation, safe retries and atomicity.
 
 ## Local MongoDB
 
-`db:start` uses the installed `mongod` to manage a separate development replica set, `techzone-dev`, on **127.0.0.1:27018**. Node handles process startup on Windows, macOS, and Linux, including paths with spaces; no Unix-only `--fork` flag or shell background command is used. Data/logs live in ignored `.local/mongodb/`. It does not modify your system service or databases on 27017. Repeating the command reuses project data. Replica-set support enables atomic multi-document operations required by later inventory stories.
+`db:start` uses the installed `mongod` to manage a separate development replica set, `techzone-dev`, on **127.0.0.1:27018**. Node handles process startup on Windows, macOS, and Linux, including paths with spaces; no Unix-only `--fork` flag or shell background command is used. Data/logs live in ignored `.local/mongodb/`. It does not modify your system service or databases on 27017. Repeating the command reuses project data. Replica-set support enables atomic multi-document operations used by purchase receipts, sales and inventory adjustments.
 
 The local helper binds only to loopback and does not enable authentication. Use it only on a trusted development machine. Shared/hosted deployments need authentication, least-privilege database credentials, network restrictions, and HTTPS; do not expose this local instance to the network.
 
@@ -135,30 +146,9 @@ To use an existing replica set, configure `MONGODB_URI` and `TEST_MONGODB_URI` i
 
 ## Schema and development data
 
-Run `npm run db:setup` after starting MongoDB. To add repeatable development accounts and inventory examples, follow the interactive password instructions in [database setup](docs/database.md), then run `npm run db:seed`. No password is committed. That document describes the shared models, constraints, money units, future references, and migration policy. Login, permissions and business workflows are implemented. The Team page is read-only; account management mutations remain deferred.
+Run `npm run db:setup` after starting MongoDB. A fresh database requires `npm run db:seed` with a supplied development password before login; `db:setup` alone creates no users. The quick-start commands above include this step. Repeat seeding preserves existing passwords and stock; see [database setup](docs/database.md). No password is committed. That document describes the shared models, constraints, money units, references, and migration policy. Login, permissions and business workflows are implemented. The Team page is read-only; account management mutations remain deferred.
 
-Optional seed command in **Windows PowerShell**:
-
-```powershell
-$seedSecret = Read-Host 'Development password (12–128 characters)' -AsSecureString
-$env:SEED_PASSWORD = [System.Net.NetworkCredential]::new('', $seedSecret).Password
-npm run db:seed
-Remove-Item Env:\SEED_PASSWORD
-Remove-Variable seedSecret
-```
-
-Optional seed command in **macOS zsh / Linux Bash**:
-
-```bash
-printf 'Development password (12–128 characters): '
-read -rs SEED_PASSWORD
-printf '\n'
-export SEED_PASSWORD
-npm run db:seed
-unset SEED_PASSWORD
-```
-
-Clear the password variable even if seeding fails. The seed creates synthetic `admin`, `inventory`, `purchase`, `sales`, `manager`, and `inactive` accounts at `@techzone.example.test`, with hashed passwords. Repeating it preserves existing passwords and stock. Use the generated credentials on the login page. Inactive users cannot log in.
+The seed defines `admin`, `inventory`, `purchase`, `sales`, `manager`, and `inactive` accounts at `@techzone.example.test`. Active accounts use the supplied seed password on first creation. Inactive users cannot log in. Clear the password environment variable even if seeding fails. Later runs can reuse existing accounts and omit seeding.
 
 ## Troubleshooting
 
@@ -176,6 +166,8 @@ Use an issue branch, focused commits, a linked PR, and another member's review b
 
 GitHub Actions runs linting, the frontend build, and API/database tests. See [CI instructions](docs/ci.md) for triggers, local commands, and interpreting results.
 
-## Part 3 testing and demo readiness
+## Testing and demonstration
 
-See the [QA delivery index](docs/testing/README.md) for revised specifications in Markdown/PDF, all case mappings, four required reports and raw LCOV. Run `npm run test:coverage` with a reachable test replica set. Coverage is reported only for instrumented files; missing JSX/startup coverage and baseline scope gaps are explicit. Atharv will upload the recorded Sprint 1 video and later record/upload Sprint 2.
+`npm test` runs the 13 backend test files in `server/tests/` and six frontend files in `client/tests/`. Browser automation is separate in `scripts/qa-browser.mjs`. The [QA index](docs/testing/README.md) links the 66 written cases, exact recorded results, four reports and coverage limitations. The [rehearsal procedure](docs/testing/test-procedures.md) covers order → receipt → sale → stock/report reconciliation with synthetic data.
+
+The delivered system has a read-only Team page, no general inventory-history filter screen and no dedicated aggregate purchase report. Firefox/Edge and production controls remain outside the recorded local validation.

@@ -2,6 +2,8 @@
 
 Executed 2026-11-11T04:04:32.854Z. Node v26.12.1; Linux 7.2.11-arch1-1 x64. Source revision: `27e6e1586cc3de32a600e0ed01a29cfd327003ac`. The exact tested source is identified by the hashes in [source-manifest.json](evidence/source-manifest.json); the evidence commit follows it.
 
+These measurements belong to the 11 November Linux run. The delivered baseline includes the later Windows harness/NFR-test fix; [provenance and follow-up validation](evidence/README.md) identify the two changed inputs and the separately recorded Windows/CI results.
+
 Coverage includes only files matched by `src/**` and visible to Node’s built-in instrumentation in each workspace. Dependencies, tests and scripts are excluded. Vite SSR loads JSX through a transform that is not represented here; component test passes do not imply JSX coverage. Files outside the measured set are listed explicitly. Percentages use covered/total counts per metric; they are not averages of file percentages. Node/V8 line coverage is its own line metric, not statement coverage.
 
 These are Node/V8 branch counters (including defaults, callbacks and guards), not a claim of exhaustive business-path coverage. Multiple counters can share one line.

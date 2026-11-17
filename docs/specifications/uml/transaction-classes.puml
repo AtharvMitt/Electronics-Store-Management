@@ -1,0 +1,86 @@
+@startuml
+!pragma layout smetana
+skinparam shadowing false
+skinparam backgroundColor white
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 15
+skinparam classAttributeIconSize 0
+skinparam classBackgroundColor #EEF5F8
+hide methods
+hide circle
+title TechZone — purchase, receipt and sale classes
+
+class Supplier <<document>> {
+  _id: ObjectId
+  name: String
+  contactName, phone, email, address: String
+  status: ACTIVE | INACTIVE
+}
+class Purchase <<document>> {
+  _id: ObjectId
+  orderNumber, requestId: String {unique each}
+  requestFingerprint: String
+  supplierId, createdBy: ObjectId
+  orderDate: Date
+  status: DRAFT | ORDERED | PARTIAL | RECEIVED | CANCELLED
+  totalMinor: Integer
+}
+class SupplierSnapshot <<embedded>> {
+  name: String
+  contactName, phone, email, address: String
+}
+class PurchaseItem <<embedded>> {
+  _id, productId: ObjectId
+  sku, name: String
+  orderedQty, receivedQty: Integer
+  unitCostMinor, lineTotalMinor: Integer
+}
+class PurchaseReceipt <<document, append-only>> {
+  _id, purchaseId, receivedBy: ObjectId
+  requestId: String {unique}
+  requestFingerprint: String
+  receivedAt: Date
+  inventoryTransactionIds: ObjectId [1..100]
+}
+class ReceiptItem <<embedded>> {
+  productId: ObjectId
+  quantity: Integer
+}
+class Sale <<document>> {
+  _id, createdBy: ObjectId
+  transactionNumber, requestId: String {unique each}
+  saleDate: Date
+  totalMinor: Integer
+}
+class SaleItem <<embedded>> {
+  productId: ObjectId
+  sku, name: String
+  quantity: Integer
+  unitPriceMinor, lineTotalMinor: Integer
+}
+Supplier "1" -- "0..*" Purchase : supplierId
+Purchase "1" *-- "1" SupplierSnapshot : supplierSnapshot
+Purchase "1" *-- "1..100" PurchaseItem : items
+Purchase "1" -- "0..*" PurchaseReceipt : purchaseId
+PurchaseReceipt "1" *-- "1..100" ReceiptItem : items
+Sale "1" *-- "1..100" SaleItem : items
+Sale -[hidden]- Purchase
+note bottom of PurchaseItem
+  Each productId references one Product.
+  This also applies to ReceiptItem and SaleItem.
+  Each product may occur only once per items array.
+end note
+note bottom of PurchaseReceipt
+  createdBy / receivedBy reference one User;
+  a User may create many purchases, receipts or sales.
+  Each receipt references 1..100 InventoryTransaction
+  events, one matching event per received line.
+  Event sourceId is the Purchase ID, not the receipt ID.
+end note
+legend bottom
+  Filled diamond: embedded value owned by one document. Plain line: reference with multiplicities.
+  Shared User, Product and InventoryTransaction classes appear in the core view; their references are noted here.
+  Selected fields are shown. Line prices/names and supplier snapshots preserve recorded transaction data.
+  Embedded type names describe schema shapes; they are not separately persisted collections.
+endlegend
+@enduml
