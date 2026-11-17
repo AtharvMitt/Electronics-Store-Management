@@ -1,6 +1,6 @@
 # TechZone — Software Architecture and Design Specification
 
-Team 9 · Delivered architecture · 16 November 2026 · Source baseline `82ef87a`
+Team 9 · Delivered architecture · 17 November 2026 · Source baseline `82ef87a`
 
 ## 1. Purpose, baseline and scope
 
@@ -49,6 +49,14 @@ Login validates bounded credentials, reads the user, checks a salted scrypt hash
 
 The permission map also defines users:manage and reports:purchases permissions, but no corresponding account mutation or purchase-report routes are implemented. Permission names alone do not establish delivery. See [permissions](../permissions.md) for the complete matrix and regression evidence.
 
+### 4.1 UML use-case view
+
+The five concrete role actors inherit the common Staff use cases. Associations show which roles may initiate each grouped business workflow. Authentication is a precondition for business actions; the diagram does not imply that each action performs a new login. Account administration, product reactivation and aggregate purchase reporting have no delivered use case.
+
+![UML use-case diagram showing the five staff roles and their implemented workflows](uml/use-cases.svg)
+
+[Editable use-case source](uml/use-cases.puml). The role associations follow [server permissions](../../server/src/modules/auth/permissions.js) and the route guards in the modules listed in section 3.
+
 ## 5. HTTP interface view
 
 All paths below have `/api` prefix. Only health/readiness and auth login/logout are public; business data and `/auth/me` require a session.
@@ -90,6 +98,22 @@ Migrations 001–005 establish foundation, sessions, sales, suppliers and purcha
 
 MongoDB is not treated as a relational database with native foreign keys. Collection validators and indexes enforce types, bounds and uniqueness. Reference helpers and services check cross-collection existence/active states, serialize risky reference changes and preserve historical snapshots. Direct privileged database writes can bypass application-level reference/immutability contracts; deployment access control remains a prerequisite.
 
+### 6.1 UML core domain class view
+
+These are domain classes corresponding to the delivered Mongoose schemas, with selected attributes and association multiplicities. They do not imply an object-oriented service layer: business services are JavaScript module functions. An association represents an application-checked reference, not a MongoDB foreign key. The inventory multiplicity shows the storage constraint; successful product creation establishes the required stock record.
+
+![UML class diagram for User, Session, Category, Product, Inventory and InventoryTransaction](uml/core-classes.svg)
+
+[Editable core class source](uml/core-classes.puml). Schema traceability: [models.js](../../server/src/database/models.js), [product service](../../server/src/modules/products/service.js) and [stock service](../../server/src/modules/inventory/service.js).
+
+### 6.2 UML transaction domain class view
+
+Filled diamonds identify embedded values whose lifecycle belongs to their containing document. Ordinary associations connect independently stored documents. Shared User, Product and InventoryTransaction references are described in notes to keep the transaction view readable. SupplierSnapshot, PurchaseItem, ReceiptItem and SaleItem name embedded schema shapes, not additional collections. Line quantities are positive; received quantities start at zero and cannot exceed ordered quantities. Totals equal the exact sum of line totals.
+
+![UML class diagram for suppliers, purchases, receipts, sales and their embedded snapshots and lines](uml/transaction-classes.svg)
+
+[Editable transaction class source](uml/transaction-classes.puml). Schema and invariant traceability: [models.js](../../server/src/database/models.js). Both class views omit infrastructure migration records and most common timestamp/version fields.
+
 ## 7. Transaction and concurrency design
 
 ### 7.1 Purchase order and receipt
@@ -98,11 +122,19 @@ Creating an order validates active references, snapshots supplier/product fields
 
 Creation/receipt keys are durable and unique. Stored request fingerprints detect conflicting reuse. A replay returns the existing committed result without reapplying stock. Concurrent receipt keys across different orders cannot commit twice. Client uncertain-response states lock the original body and key for retry. A committed write whose list refresh failed is reported as saved and offers read refresh rather than duplicate submission.
 
+![UML sequence diagram for purchase receipt, request replay and atomic stock increase](uml/receipt-sequence.svg)
+
+[Editable receipt sequence source](uml/receipt-sequence.puml). The sequence follows [purchase routes](../../server/src/modules/purchases/routes.js), [receivePurchase](../../server/src/modules/purchases/service.js) and [applyStockChange](../../server/src/modules/inventory/service.js). Order progress is saved before stock writes within the same transaction; a later failure rolls it back. Replay returns the original receipt with the current purchase state. Frames summarize principal alternatives; model-validation calls, driver retries and transport failures are omitted.
+
 ### 7.2 Sale and reusable stock service
 
 The sale service owns the multi-document transaction: validate active products and quantities, derive price snapshots, create sale/source identity, apply guarded per-product decrements and append source/actor history. Insufficient stock on any line aborts all lines. Stable request keys prevent duplicate sale/stock changes on concurrent or later retries.
 
 The reusable stock service composes with a caller transaction or owns one for an independent adjustment. Stock predicates prevent negative values and unsafe overflow. Source/actor checks and reason requirements preserve auditability. Fault injection tests force errors after later-line writes and verify complete raw snapshots. A prior embedded sale-item version-key retry defect was fixed; [stock consistency](../stock-consistency.md) records reproduction and correction. Embedded sale items omit versioning so transaction retry cleanup succeeds.
+
+![UML sequence diagram for sale creation, idempotent replay and atomic stock decrement](uml/sale-sequence.svg)
+
+[Editable sale sequence source](uml/sale-sequence.puml). The sequence follows [sale routes](../../server/src/modules/sales/routes.js), [recordSale/createSale](../../server/src/modules/sales/service.js) and [applyStockChange](../../server/src/modules/inventory/service.js). The route returns 201 for both a new sale and a matching replay. Transaction failure rolls back the sale and every stock/history write. A replay compares the actor and ordered item list; the sale document does not store a purchase-style requestFingerprint field.
 
 ### 7.3 Reporting
 
