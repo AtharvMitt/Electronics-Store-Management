@@ -14,7 +14,7 @@ All supplier routes require authentication. `GET /api/suppliers` and `GET /api/s
 
 The React Suppliers section offers creation/editing, active/inactive status, contact details, deactivation, filters and refresh. View-only roles receive the table and filters without mutation controls. Successful writes notify the dependent purchase selector; a failed read after a successful write explicitly tells the user the write was saved.
 
-Supplier selection and preservation of historical purchase snapshots are integrated under companion story #16 in this feature branch. Tests: `server/tests/suppliers.test.js` and `client/tests/suppliers-ui.test.js`.
+Supplier selection and preservation of historical purchase snapshots are integrated into purchases. Tests: `server/tests/suppliers.test.js` and `client/tests/suppliers-ui.test.js`.
 
 ## Purchase orders and receipts — #16
 
@@ -82,4 +82,4 @@ An uncertain POST response locks the original input and offers Retry purchase/Re
 | #16 view purchase records | Stored detail, receipt history, view-only permissions and supplier/date/status filters |
 | NFR-004/009 and FR-PUR-008 | Concurrent retries, cross-order key reuse, competing receipts, missing-stock/overflow/inactive cases, MongoDB validators and non-destructive migration upgrade |
 
-Run the existing root `npm run lint`, `npm test`, and `npm run build` with the local MongoDB replica set running. New files: `server/tests/suppliers.test.js`, `server/tests/purchases.test.js`, `client/tests/suppliers-ui.test.js`, `client/tests/purchases-ui.test.js`. API tests create/drop only uniquely named test databases. Existing #11 source fixtures now satisfy the actual purchase schema without bypassing validators or weakening assertions.
+Run the existing root `npm run lint`, `npm test`, and `npm run build` with the local MongoDB replica set running. Test files: `server/tests/suppliers.test.js`, `server/tests/purchases.test.js`, `client/tests/suppliers-ui.test.js`, `client/tests/purchases-ui.test.js`. API tests create/drop only uniquely named test databases. Existing #11 source fixtures now satisfy the actual purchase schema without bypassing validators or weakening assertions.

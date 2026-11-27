@@ -10,11 +10,7 @@ The GitHub issue description is the acceptance checklist. Read it, the requireme
 6. Address feedback, pass applicable checks, then merge after approval. Prefer **Create a merge commit** to preserve individual commits.
 7. Update the issue/project and record the actual merged commit and demo evidence in the sprint record.
 
-Do not commit secrets, `.env`, database files, generated builds, or `node_modules`. Commit dependency changes with `package-lock.json` and reproduce them with `npm ci`. Foundation PRs must not implement another member's assigned features.
-
-## Dependent PRs
-
-Until #8 is reviewed and merged, dependent branches can base on it. Initial stack: `main ← chore/8-mern-setup ← ci/12-github-actions ← feat/24-mongodb-schema`. Review each PR's own diff. After the parent merges, update the child and retarget its PR to `main` before merging it. Automatic issue closing applies when changes reach the default branch; keep dependent issues open until then.
+Do not commit secrets, `.env`, database files, generated builds, or `node_modules`. Commit dependency changes with `package-lock.json` and reproduce them with `npm ci`.
 
 ## Definition of Done
 

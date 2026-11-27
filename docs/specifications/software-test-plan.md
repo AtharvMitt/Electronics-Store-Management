@@ -1,12 +1,12 @@
 # TechZone — Software Test Plan
 
-Team 9 · Revision 2.0 · 11 November 2026 · Part 3 Testing & QA
+Team 9 · Software Test Plan · 16 November 2026 · Source baseline `82ef87a`
 
 ## 1. Purpose and document control
 
 Validate the delivered internal store against the [revised SRS](software-requirements-specification.md) and [SAD](software-architecture-design.md), retaining traceability to the originally submitted Part III Test Plan. All 65 original unique IDs remain; TC-PUR-06 is added for the omitted receipt-recording requirement FR-PUR-006, making 66 cases. The original repeated TC-SEC-03 counts once. No faculty approval of deviations or unmet baseline scope is claimed.
 
-This plan replaces the original technology/routes/procedures for the current delivery. It does not convert an absent feature into a pass. Case results distinguish PASS, PARTIAL, DEFERRED, N/A and PENDING. The original PDFs remain history.
+This plan replaces the original technology/routes/procedures for the current delivery. It does not convert an absent feature into a pass. Case results distinguish PASS, PARTIAL, DEFERRED, N/A and PENDING. The [original PDFs](../archive/README.md) remain history. The six original E2E IDs and requirements without original TC IDs are mapped in [test procedures](../testing/test-procedures.md).
 
 ## 2. Scope and test items
 
@@ -27,15 +27,15 @@ Unimplemented baseline items are explicitly tracked: FR-AUTH-006 account mutatio
 | Performance and volume | 100 warmed sequential authenticated reads; 10000 products and 100000 schema-validated audit records |
 | Static/snapshot review | ESLint, Vite build, Git whitespace checks, source module boundaries, client secret inspection |
 
-No new test/coverage package is introduced. Node coverage instruments imported code visible to its runtime; Vite SSR JSX does not yield a whole-client coverage result. Reports identify every unmeasured source file. Backend startup is outside the imported test scope. Tests are not called purely isolated units when they use a database or browser.
+Coverage uses Node’s built-in instrumentation. Node coverage instruments imported code visible to its runtime; Vite SSR JSX does not yield a whole-client coverage result. Reports identify every unmeasured source file. Backend startup is outside the imported test scope. Tests are not called purely isolated units when they use a database or browser.
 
 ## 4. Environment, data and entry criteria
 
-Node >=24, npm dependencies installed from lockfile and reachable MongoDB replica set. Set TEST_MONGODB_URI to a dedicated test environment. Test files always override its database name with unique `techzone_test_*` databases and drop only those databases. Never point tests at application data. This execution used Arch Linux, Node 26.12.1 and MongoDB 8.3.9, with isolated QA replica set techzone-qa at 127.0.0.1:27019.
+Node >=24, npm dependencies installed from lockfile and reachable MongoDB replica set. Set TEST_MONGODB_URI to a dedicated test environment. Data-writing suites override its database name with unique `techzone_test_*` databases and drop only those databases. The foundation readiness test connects to TEST_MONGODB_URI for a ping without creating or dropping a fixture database. Never point tests at application data. The committed 11 November execution used Arch Linux, Node 26.12.1 and MongoDB 8.3.9, with isolated QA replica set techzone-qa at 127.0.0.1:27019.
 
 Fixtures use synthetic staff/product/supplier records and generated passwords; no real customer data. Exact money boundaries, negative/fractional/unsafe quantities, inactive references, inclusive date boundaries, empty results and duplicate retries are represented. Fault injection controls second-line audit writes, receipt persistence and transient transaction retry failures. Raw state before/after rejection/rollback is compared in consistency tests.
 
-The normal response-time workload is 20 reads each for products, inventory, suppliers, purchases and inventory reports, after warm-up, concurrency 1, a small local fixture, excluding login/hash and public network time. Require at least 95/100 within 2000 ms. The volume workload uses 10000 products/stock rows and ten +1 adjustment events per product (100000 total), reconciling to 10 units per product. Search, full inventory report and stock adjustment each have a documented local 5000 ms usability budget; this does not replace the separate response-time requirement or assert concurrent production scale.
+The normal response-time workload is 20 reads each for products, inventory, suppliers, purchases and inventory reports, after warm-up, concurrency 1, a small local fixture, excluding login/hash and public network time. Require at least 95/100 within 2000 ms. The volume workload uses 10000 products/stock rows and ten +1 adjustment events per product (100000 total), reconciling to 10 units per product. Search, full inventory report and stock adjustment each use a local 5000 ms usability budget in normal runs and 15000 ms when NODE_V8_COVERAGE is set; the committed 11 November measurements used 5000 ms; this does not replace the separate response-time requirement or assert concurrent production scale.
 
 ## 5. Execution procedure and deliverables
 
@@ -50,7 +50,9 @@ node scripts/testing-reports.mjs
 
 The browser script requires installed `chromedriver` and Chromium (default `/usr/bin/chromium`, overridable with QA_BROWSER_BINARY), free ports 5001/5174/9516 and loopback access. It creates a disposable seeded database, runs UI actions, deletes the browser session, closes servers and drops that database. Other browsers require the manual matrix in the system validation report. qa-review runs lint/build/whitespace checks and a bounded current client-secret/module review.
 
-Reports: [Unit Test](../testing/unit-test-report.md), [System Validation](../testing/system-validation-report.md), [Code Coverage](../testing/code-coverage-report.md), [Branch Coverage](../testing/branch-coverage-report.md), and [consolidated cases](../testing/test-cases.md). Raw JSON, source hashes and LCOV reside in docs/testing/evidence. Report generation validates labelled automated PASS rows against passing tests and checks case uniqueness. The four area files are the editable case source; regenerate the combined table after edits.
+These commands overwrite evidence and generated reports. Preserve a coherent capture of source, test results, browser checks and review output. The current report generator contains fixed narrative text for the original QA delivery; review dates, peer-review dispositions, scope notes and provenance after generation. The specification renderer synchronizes §9 and creates intermediate HTML, but PDF diagrams, table layout and links require separate export checks. Do not treat generator output alone as a verified publication.
+
+Reports: [Unit Test](../testing/unit-test-report.md), [System Validation](../testing/system-validation-report.md), [Code Coverage](../testing/code-coverage-report.md), [Branch Coverage](../testing/branch-coverage-report.md), and [consolidated cases](../testing/test-cases.md). Raw JSON, source hashes and LCOV reside in docs/testing/evidence. Report generation validates labelled automated PASS rows against passing tests and checks case uniqueness. The four area files are the case source. Keep the consolidated table and §9 identical to those rows. Supplemental procedures are in [test procedures](../testing/test-procedures.md).
 
 ## 6. Roles, schedule and review
 
@@ -61,9 +63,7 @@ Reports: [Unit Test](../testing/unit-test-report.md), [System Validation](../tes
 | Avaneesh | inventory-sales-reports.md; listing/sales/reports | Apurv |
 | Atharv | purchases-common-nfr.md; purchases/common/NFR; integrated revised documents | Annamalai |
 
-These are delivery assignments, not assertions that reviews occurred. Atharv initially requested a direct-main push as AtharvMitt. GitHub rejected the push with GH006 because main requires a pull request. Atharv subsequently authorized a QA branch and PR as AtharvMitt. Peer review and protected-main merge remain outstanding; no approval is fabricated.
-
-Original Part 3 due date: 6 November 2026. Catch-up target: 12 November 2026 EOD IST. Run and document local QA on 11 November; teammate review, required browser matrix and document decisions by target EOD. Atharv owns uploading the already-recorded one-minute Sprint 1 video and recording/uploading the two-minute Sprint 2 video later. No video upload or recording is claimed here.
+The implementation calendar was Sprint 1 (28 October–4 November) and Sprint 2 (5–9 November 2026). The Part 3 deadline was 6 November; QA was recorded on 11 November and merged on 12 November. PR #43 received Annamalai's approval; the Windows coverage follow-up #44 received AtharvMitt's approval. [Evidence provenance](../testing/evidence/README.md) links the reviews and passing CI. Per-owner sign-offs beyond those records and faculty acceptance of scope gaps are not asserted.
 
 ## 7. Pass/fail, exit, suspension and resumption criteria
 
@@ -73,9 +73,9 @@ Exit requires zero failed/cancelled/skipped required automated cases, successful
 
 ## 8. Defect management and risk
 
-Record requirement/TC, reproduction, environment, expected/actual behavior, severity, owner, fix and retest. Critical stock/integrity/authorization failures block demo acceptance. Known prior sale retry defect and verified fix are retained in docs/stock-consistency.md. This run's baseline scope gaps are listed in the system report; no issue closure, teammate approval or faculty waiver is inferred. A short local NFR sample and Chromium alone do not establish production performance/availability or all-browser support.
+Record requirement/TC, reproduction, environment, expected/actual behavior, severity, owner, fix and retest. Critical stock/integrity/authorization failures block demo acceptance. Known prior sale retry defect and verified fix are retained in docs/stock-consistency.md. Baseline scope gaps are listed in the system report. Recorded PR approvals establish peer review, not faculty acceptance of unmet requirements. A short local NFR sample and Chromium alone do not establish production performance/availability or all-browser support.
 
-## 9. Full revised case inventory
+## 9. Case inventory
 
 The table below is generated from the four owner area files. Each row contains the original requirement, actual behavior, deviation, executable evidence/procedure and current result. The execution report additionally lists per-use-case results and the pending manual matrix.
 
@@ -146,6 +146,6 @@ The table below is generated from the four owner area files. Each row contains t
 | TC-NFR-04 | NFR-005 | Review separated modules, service transaction ownership and core test files. | Express module directories replace Django apps. | docs/specifications/software-architecture-design.md; scripts/qa-review.mjs | PASS (review) |
 | TC-NFR-05 | NFR-006 | Real API/service/component suites execute without skipped integration tests. | Node test runner, Supertest and jsdom replace pytest; unique disposable test databases. | evidence/server-results.json; evidence/client-results.json | PASS (suite execution) |
 | TC-NFR-06 | NFR-007 | Run integrated desktop/mobile-width flow in Chromium; Firefox/Edge checks pending. | Headless browser automation is recorded separately from human checks; other required browsers unavailable. | scripts/qa-browser.mjs; follow manual matrix in system-validation-report.md on Firefox and Edge. | PARTIAL (browser matrix pending) |
-| TC-NFR-07 | NFR-008 | Load 10000 products, 100000 audit records; search, report and adjust stock. | Synthetic schema-validated fixture; single local client, 5-second usability budget per operation. | server/tests/non-functional.test.js; diagnostics in evidence/server-results.json | PASS (automated) |
-| TC-NFR-10 | NFR-011 | ESLint, build and whitespace checks; inspect Git workflow. | ESLint/GitHub Actions replace SonarQube/Jenkins; main protection requires the authorized QA PR; peer review is pending. | docs/testing/evidence/quality-checks.json; teammate review still required. | PARTIAL (peer review pending) |
+| TC-NFR-07 | NFR-008 | Load 10000 products, 100000 audit records; search, report and adjust stock. | Synthetic schema-validated fixture; single local client; 5 seconds normally, 15 seconds when NODE_V8_COVERAGE is set. The recorded Linux run used 5 seconds. | server/tests/non-functional.test.js; diagnostics in evidence/server-results.json | PASS (automated) |
+| TC-NFR-10 | NFR-011 | ESLint/build/whitespace checks, CI and peer review. | GitHub Actions and ESLint; PR #43 approved by Annamalai and PR #44 by AtharvMitt on 12 November. | docs/testing/evidence/README.md; quality-checks.json; PR #43/#44 reviews and CI run 43186995293 | PASS (peer review) |
 | TC-NFR-11 | NFR-012 | Inventory events preserve responsible actor, source, reason and timestamp. | Immutable inventoryTransactions collection; adjustment audit tests check Date values. | server/tests/inventory.test.js; server/tests/end-to-end.test.js | PASS (automated) |

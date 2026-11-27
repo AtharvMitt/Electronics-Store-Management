@@ -1,10 +1,10 @@
 # System validation report
 
-Executed 2026-11-11T04:04:32.854Z. Node v26.12.1; Linux 7.2.11-arch1-1 x64. Source revision: `27e6e1586cc3de32a600e0ed01a29cfd327003ac`. The exact tested source is identified by the hashes in [source-manifest.json](evidence/source-manifest.json); the evidence commit follows it.
+Automated execution: 11 November 2026, Linux / Node 26.12.1, source `27e6e15`. Acceptance status includes the 12 November reviews and delivered baseline `82ef87a`. [Evidence provenance](evidence/README.md) distinguishes committed raw results from the Windows follow-up and CI.
 
 All **65 original unique TC IDs** are retained. **TC-PUR-06** is added for FR-PUR-006, which the original table skipped: **66 cases total**. The repeated TC-SEC-03 in the original functional/security sections counts once. NFR case numbers differ from requirement numbers: TC-NFR-08 = NFR-009; TC-NFR-09 = NFR-010.
 
-Case dispositions: **PASS: 59**; **N/A: 3**; **PARTIAL: 3**; **DEFERRED: 1**. PASS means the documented revised scenario passed. PARTIAL/DEFERRED identify unmet baseline scope; N/A identifies a deployment/operating context that is absent. They are not passes.
+Case dispositions: **PASS: 60**; **N/A: 3**; **PARTIAL: 2**; **DEFERRED: 1**. PASS means the documented revised scenario passed. PARTIAL/DEFERRED identify unmet baseline scope; N/A identifies a deployment/operating context that is absent. They are not passes.
 
 The ordered `server/tests/end-to-end.test.js` workflow has 12 passing steps: setup → zero-stock rejection → supplier/order → partial/full receipt and over-receipt rejection → adjustment → sale/retry → failed-sale rollback → low-stock boundary → report reconciliation → audit reconciliation → retirement → logout.
 
@@ -34,18 +34,18 @@ Executed by `scripts/qa-browser.mjs` using Chromium 156.0.8078.73, 1440×1000 an
 | TC-NFR-06: Chromium mobile-width navigation smoke (partial browser matrix) | PASS |
 | TC-AUTH-04: browser logout removes workspace | PASS |
 
-## Manual checks still required
+## Manual and review dispositions
 
 | TC | Owner | Steps / expected result | Current result |
 | --- | --- | --- | --- |
 | TC-NFR-06 | Atharv; teammate on required browsers | On Firefox and Edge: login; create supplier/order; receive goods and verify stock; sell and verify stock/report total; clear search; logout. Record browser version, OS, date and actual result. | PENDING for Firefox and Edge; Chromium desktop/mobile-width checks passed. |
-| TC-NFR-10 | One teammate per module | Review four area mappings and revised SRS/SAD/STP against implementation; record reviewer, date and remaining defects. | PENDING peer review; lint/build/whitespace checks passed. |
+| TC-NFR-10 | Annamalai / AtharvMitt | Review mappings/reports and Windows coverage follow-up, with CI. | PASS: PR #43 approved by Annamalai and #44 by AtharvMitt on 12 November; see evidence provenance. |
 | TC-NFR-02 | Atharv if hosted | Define operating window; monitor requests and uptime; exclude planned maintenance; require >=99%. | N/A: no hosted operating window. |
 | TC-SEC-05 / TC-SEC-10 | Annamalai if deployed | Inspect HTTPS/certificate/cookie network behavior and deployed database user privileges. | N/A: production deployment absent. |
 
 ## Local NFR measurements
 
-The response-time test excludes login/fixture setup and sends 100 warmed reads sequentially across five routes. The volume test starts with 10000 products and 100000 audit events and measures three operations with a separate 5000 ms usability budget. Measurements below are from the recorded run, in milliseconds; they are not production benchmarks.
+The response-time test excludes login/fixture setup and sends 100 warmed reads sequentially across five routes. The volume test starts with 10000 products and 100000 audit events and measures three operations with a separate 5000 ms usability budget in this recorded run. Current tests allow 15000 ms when NODE_V8_COVERAGE is set; normal runs retain 5000 ms. Measurements below are from the recorded run, in milliseconds; they are not production benchmarks.
 
 ```json
 [
@@ -145,11 +145,11 @@ The response-time test excludes login/fixture setup and sends 100 warmed reads s
 | TC-NFR-05 | NFR-006 | PASS (suite execution) | evidence/server-results.json; evidence/client-results.json |
 | TC-NFR-06 | NFR-007 | PARTIAL (browser matrix pending) | scripts/qa-browser.mjs; follow manual matrix in system-validation-report.md on Firefox and Edge. |
 | TC-NFR-07 | NFR-008 | PASS (automated) | server/tests/non-functional.test.js; diagnostics in evidence/server-results.json |
-| TC-NFR-10 | NFR-011 | PARTIAL (peer review pending) | docs/testing/evidence/quality-checks.json; teammate review still required. |
+| TC-NFR-10 | NFR-011 | PASS (peer review) | evidence/README.md; PR #43/#44 approvals and CI run 43186995293. |
 | TC-NFR-11 | NFR-012 | PASS (automated) | server/tests/inventory.test.js; server/tests/end-to-end.test.js |
 
 ## Defect and release disposition
 
 No application test failures occurred in this run. Baseline gaps remain: user-management mutations (FR-AUTH-006), inventory-history filtering (FR-INV-006), and dedicated purchase reporting (FR-REP-003). They are documented in the revised specifications; no faculty approval or baseline compliance waiver is claimed. Earlier stock retry defect/fix evidence remains in [stock consistency](../stock-consistency.md). QA harness selector/root corrections were verified by rerunning the browser workflow.
 
-The report package is reviewable, but full baseline acceptance remains open until these scope decisions and outstanding manual/peer reviews are resolved. Sprint videos remain Atharv’s pending deliverables.
+The QA package and Windows follow-up were reviewed and merged on 12 November. Full baseline acceptance remains open for the functional gaps and outstanding manual checks. [Supplemental procedures](test-procedures.md) map E2E-01–06 and separately track FR-AUTH-006 and NFR-003. Sprint records distinguish available evidence from unrecorded video submissions.

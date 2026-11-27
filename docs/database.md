@@ -1,8 +1,8 @@
-# MongoDB foundation — issue #24
+# Database design and setup
 
 ## Scope and SRS mapping
 
-This records the initial Sprint 1 data foundation, adapted from SRS §14 and SAD §8 to the owner's MERN decision. Later feature issues extend these shared models; current sales and report contracts are in [inventory-sales-reports.md](inventory-sales-reports.md). Shared models are exported from `server/src/database/models.js`.
+The delivered schema uses MongoDB/Mongoose with migrations 001–005. It implements the logical data requirements in the [SRS](specifications/software-requirements-specification.md); transaction contracts are in [inventory/sales/reports](inventory-sales-reports.md) and [suppliers/purchases](suppliers-purchases.md). Shared models are exported from `server/src/database/models.js`.
 
 | Collection / model | Required business fields | Integrity and indexes |
 | --- | --- | --- |
@@ -20,32 +20,42 @@ Every collection has an ObjectId `_id`. Mutable records have `createdAt`/`update
 
 ```mermaid
 erDiagram
+    USER ||--o{ SESSION : authenticates
     CATEGORY ||--o{ PRODUCT : classifies
     PRODUCT ||--o| INVENTORY : has
     PRODUCT ||--o{ INVENTORY_TRANSACTION : records
     USER ||--o{ INVENTORY_TRANSACTION : performs
+    SUPPLIER ||--o{ PURCHASE : supplies
+    USER ||--o{ PURCHASE : creates
+    PURCHASE ||--|{ PURCHASE_ITEM : embeds
+    PRODUCT ||--o{ PURCHASE_ITEM : ordered
+    PURCHASE ||--o{ PURCHASE_RECEIPT : receives
+    USER ||--o{ PURCHASE_RECEIPT : records
+    PURCHASE_RECEIPT ||--|{ RECEIPT_ITEM : embeds
+    PRODUCT ||--o{ RECEIPT_ITEM : received
+    PURCHASE_RECEIPT ||--|{ INVENTORY_TRANSACTION : links
     USER ||--o{ SALE : records
-    SALE ||--|{ SALE_ITEM : contains
+    SALE ||--|{ SALE_ITEM : embeds
     PRODUCT ||--o{ SALE_ITEM : sold
 ```
 
-The optional stock row in the physical diagram reflects creation order; feature services must create a product and its stock row together in a transaction. There must be exactly one row once a product creation workflow completes.
+Purchase, receipt and sale items are embedded arrays, not separate collections. Each receipt links its immutable stock events; source IDs on events refer to the purchase, sale or adjustment. The optional stock row in the diagram reflects creation order; feature services must create a product and its stock row together in a transaction. There must be exactly one row once a product creation workflow completes.
 
 ## Explicit physical design decisions
 
 - SRS `role_id` is represented by one validated `role` value on the user document. Role definitions are the five fixed values above; the SRS permission matrix remains the authorization baseline for #7.
-- SRS decimal `selling_price` is represented by `sellingPriceMinor`, an integer number of hundredths of the store's currency. For example 1299.00 is stored as 129900. Future APIs must document and consistently use this unit, format amounts for display, and compute totals in exact minor units rather than floating-point decimal arithmetic.
+- SRS decimal `selling_price` is represented by `sellingPriceMinor`, an integer number of hundredths of the store's currency. For example 1299.00 is stored as 129900. APIs use this unit consistently; the client formats amounts to two decimal places.
 - SKU is normalized to uppercase/trimmed through Mongoose and globally unique, including inactive records. This preserves stable historical identity and implements the SRS §14 unique-SKU field requirement. No SKU recycling is supported.
 - Category names are unique and trimmed. Physical collection/field names differ from the logical SQL-style names in the original document.
 - An ADJUSTMENT event's `sourceId` equals its own `_id`, with a required `reason`. It is its own source record. A PURCHASE/SALE event references the corresponding transaction document; a missing source is rejected.
 
-These are initial shared contracts for review by the feature owners. No authentication endpoint or user-management UI is delivered by this story.
+Authentication and permissions use these models. The Team page lists users; account mutation routes and forms are absent.
 
 ## Where constraints are enforced
 
 1. **MongoDB:** strict collection validators enforce required fields, BSON types, allowed statuses, length/range/integer rules, and adjustment self-reference/reason. Unique indexes enforce identifiers and one inventory row per product. Tests exercise direct database writes to verify constraints independently of Mongoose.
 2. **Mongoose/shared services:** `create`/`save` and ordinary update operations check referenced category, product and responsible user records. History also checks its source transaction, and sales validate their product and actor references. Query updates enable Mongoose validation; database validators additionally protect `$inc` stock changes. Reference-bearing models reject `insertMany`, `bulkWrite`, and pipeline updates so feature services use the validated contract.
-3. **History/deletion:** history model writes are append-only. Shared deletion hooks reject deleting a referenced category, product, or user. Products/users with history must be deactivated; future supplier records must follow the same policy.
+3. **History/deletion:** history model writes are append-only. Shared deletion hooks reject deleting a referenced category, product, or user. Products/users with history must be deactivated; referenced suppliers follow the same policy.
 
 MongoDB has no relational foreign keys. Direct `Model.collection`/driver writes can bypass application reference/deletion checks; feature routes must use reviewed model/service writes. Reference checks alone also do not solve concurrent delete/write races. Prefer deactivation; multi-document business changes must share a session/transaction and enforce authorization, stock availability, and idempotency in the owning feature service. Never expose unrestricted database-write endpoints.
 
@@ -57,7 +67,7 @@ Follow the root README (`npm ci`, copy `.env.example`, `npm run db:start`), then
 npm run db:setup
 ```
 
-Setup applies `001-initial-inventory-foundation`, creates collections/validators/indexes, and records the version in `_schemaMigrations`. Repeating it reports Already applied. Before adopting an existing collection, setup rejects documents that violate the proposed schema. It never deletes existing data. Mongoose automatic collection/index creation is disabled; setup is the authoritative initializer.
+Setup applies every missing migration from 001 through 005, creates collections/validators/indexes, and records each version in `_schemaMigrations`. Repeating it reports Already applied. Before adopting an existing collection, setup rejects documents that violate the proposed schema. It never deletes existing data. Mongoose automatic collection/index creation is disabled; setup is the authoritative initializer.
 
 Migration `002-authentication-sessions` (issue #6) adds the `sessions` collection: `tokenHash` (SHA-256 hex of the cookie token, unique), `userId` (User reference), `expiresAt` and `createdAt`. A TTL index on `expiresAt` lets MongoDB delete expired sessions; the API also rejects expired sessions itself because TTL cleanup can lag by about a minute. Existing databases pick it up with `npm run db:setup`.
 
@@ -92,7 +102,7 @@ Remove-Variable seedSecret
 
 Use `npm.cmd` if PowerShell blocks `npm.ps1`. The password is temporarily passed in the process environment for hashing, never stored in a tracked file. Clear it after seeding, including if the command fails.
 
-Six synthetic accounts are defined at `admin`, `inventory`, `purchase`, `sales`, `manager`, and `inactive` **@techzone.example.test**. They cover all five roles plus an inactive account. Passwords use a salted scrypt hash; no default password is committed or printed. User JSON excludes the hash, and normal queries do not select it. Log in to the app with any active seeded account and the seed password. Login and account-status checks are implemented in #6; role permissions follow in #7.
+Six synthetic accounts are defined at `admin`, `inventory`, `purchase`, `sales`, `manager`, and `inactive` **@techzone.example.test**. They cover all five roles plus an inactive account. Passwords use a salted scrypt hash; no default password is committed or printed. User JSON excludes the hash, and normal queries do not select it. Log in to the app with any active seeded account and the seed password. Login, account-status checks and role permissions are implemented.
 
 Products cover normal stock, below threshold, exactly at threshold, zero stock, and inactive status. Nonzero opening balances have a traceable adjustment event. Low stock includes equality (BR-003); #19 implements the database-backed query/UI.
 
@@ -100,14 +110,14 @@ Seeding uses a transaction, performs setup if needed, and preserves existing rec
 
 ## Supplier and purchase references
 
-Issue #11 provides [reusable stock adjustment services](stock-adjustments.md) with guarded quantity updates and atomic history writes, standalone or within a caller-owned transaction. It never creates a missing stock row. #16 must use the same session for source/line writes and stock events; its receipt validation/idempotency remains in that story. Issue #17 uses this service for atomic sale writes.
+Issue #11 provides [reusable stock adjustment services](stock-adjustments.md) with guarded quantity updates and atomic history writes, standalone or within a caller-owned transaction. It never creates a missing stock row. Purchase receipts use the same session for source/line writes, stock events and receipt persistence. Issue #17 uses this service for atomic sale writes.
 
 The implemented supplier/purchase collections extend the existing SRS §§14.3–14.4 mapping:
 
 - Supplier: name/contact fields/status; deactivate instead of deleting purchase history.
 - Purchase: `supplierId`, order date/status, exact total, and embedded item lines containing `productId`, ordered/received quantities and unit cost. Retain line prices; received quantity must not exceed ordered quantity.
 - Sale: unique transaction number, sale date, `createdBy`, exact total and embedded product/quantity/unit-price lines; implemented in issue #17.
-- History: purchase/sale `sourceId` references those root documents, with product and responsible-user links. Sale line details are retained in `sales`; any receipt-specific operation/retry IDs belong in a reviewed purchase migration.
+- History: purchase/sale `sourceId` references those root documents, with product and responsible-user links. Sale line details are retained in `sales`; receipt-specific operation/retry IDs are retained in purchaseReceipts under migration 005.
 
 Supplier/purchase contracts, partial receipts and history preservation are documented in [suppliers-purchases.md](suppliers-purchases.md). Sales use migration `003-sales-records` and the atomic service documented in [inventory-sales-reports.md](inventory-sales-reports.md).
 

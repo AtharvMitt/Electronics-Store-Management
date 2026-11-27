@@ -1,0 +1,64 @@
+@startuml
+!pragma layout smetana
+left to right direction
+skinparam shadowing false
+skinparam backgroundColor white
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 15
+skinparam packageStyle rectangle
+skinparam ArrowColor #39576B
+skinparam usecaseBackgroundColor #EEF5F8
+title TechZone — implemented staff use cases
+
+actor Staff
+actor ADMIN
+actor INVENTORY
+actor PURCHASE
+actor SALES
+actor MANAGER
+Staff <|-- ADMIN
+Staff <|-- INVENTORY
+Staff <|-- PURCHASE
+Staff <|-- SALES
+Staff <|-- MANAGER
+
+rectangle "TechZone" {
+  usecase "Log in / log out" as Session
+  usecase "Browse products, categories, stock,\nsuppliers, purchase and sale history" as Browse
+  usecase "Create / edit products\nand categories; adjust stock" as Stock
+  usecase "Retire products;\ndelete unused categories" as Retire
+  usecase "Manage supplier contacts\nand deactivate suppliers" as Suppliers
+  usecase "Create / edit / cancel orders" as Orders
+  usecase "Receive goods\n(partial or complete)" as Receive
+  usecase "Record a sale" as Sale
+  usecase "View inventory / low-stock reports" as InventoryReport
+  usecase "View sales reports" as SalesReport
+  usecase "View Team users" as Team
+}
+Staff -- Session
+Staff -- Browse
+ADMIN -- Stock
+ADMIN -- Retire
+ADMIN -- Suppliers
+ADMIN -- Orders
+ADMIN -- Receive
+ADMIN -- Sale
+ADMIN -- InventoryReport
+ADMIN -- SalesReport
+ADMIN -- Team
+INVENTORY -- Stock
+INVENTORY -- InventoryReport
+PURCHASE -- Suppliers
+PURCHASE -- Orders
+PURCHASE -- Receive
+SALES -- Sale
+SALES -- SalesReport
+MANAGER -- InventoryReport
+MANAGER -- SalesReport
+MANAGER -- Team
+legend bottom
+  Hollow triangle: each concrete role inherits the common Staff use cases.
+  Business use cases require an active authenticated user and server permission.
+  Grouped ovals summarize related delivered actions; section 4 gives the role matrix.
+endlegend
+@enduml

@@ -1,0 +1,75 @@
+@startuml
+!pragma layout smetana
+skinparam shadowing false
+skinparam backgroundColor white
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 15
+skinparam classAttributeIconSize 0
+skinparam classBackgroundColor #EEF5F8
+hide methods
+hide circle
+title TechZone — identity, catalogue and stock classes
+
+class User <<document>> {
+  _id: ObjectId
+  name: String
+  email: String {unique}
+  passwordHash: String {hidden}
+  role: ADMIN | INVENTORY | PURCHASE | SALES | MANAGER
+  status: ACTIVE | INACTIVE
+}
+class Session <<document>> {
+  _id: ObjectId
+  tokenHash: String {unique}
+  userId: ObjectId
+  expiresAt: Date
+}
+class Category <<document>> {
+  _id: ObjectId
+  name: String {unique}
+}
+class Product <<document>> {
+  _id: ObjectId
+  sku: String {unique}
+  name: String
+  categoryId: ObjectId
+  sellingPriceMinor: Integer
+  minimumStock: Integer
+  status: ACTIVE | INACTIVE
+}
+class Inventory <<document>> {
+  _id: ObjectId
+  productId: ObjectId {unique}
+  availableQty: Integer {>= 0}
+}
+class InventoryTransaction <<document, append-only>> {
+  _id: ObjectId
+  productId: ObjectId
+  changeQty: Integer
+  sourceType: PURCHASE | SALE | ADJUSTMENT
+  sourceId: ObjectId
+  createdBy: ObjectId
+  createdAt: Date
+  reason: String [0..1]
+}
+User "1" -- "0..*" Session : userId
+Category "1" -- "0..*" Product : categoryId
+Product "1" -- "0..1" Inventory : productId
+Product "1" -- "0..*" InventoryTransaction : productId
+User "1" -- "0..*" InventoryTransaction : createdBy
+note right of Inventory
+  Unique productId allows at most one row.
+  Product creation also creates its stock row.
+  Stock-changing services require that row.
+end note
+note bottom of InventoryTransaction
+  sourceId references Purchase for PURCHASE,
+  Sale for SALE, or this event itself for ADJUSTMENT.
+  Adjustments require a nonempty reason.
+end note
+legend bottom
+  Domain classes represent Mongoose documents; associations are application-checked references.
+  Selected schema fields are shown; common timestamps/version fields are omitted.
+  All quantities and money use safe integers; money is stored in minor units.
+endlegend
+@enduml

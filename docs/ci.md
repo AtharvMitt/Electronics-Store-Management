@@ -41,4 +41,4 @@ In GitHub, open the PR's Checks tab or Actions → CI → the run for the exact 
 
 ## Review requirement
 
-The team requires another member's approval before merge. Enable required CI checks for `main` after this workflow is merged there and has reported checks; requiring unavailable checks on the earlier setup PR would block the initial bootstrap. Keep issues In progress until reviewed and merged.
+The team requires another member's approval before merge. Use the pull request Checks tab to confirm checks for the proposed commit. Keep issues In progress until reviewed and merged.
